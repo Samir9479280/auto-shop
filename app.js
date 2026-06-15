@@ -1,40 +1,37 @@
 const BOT_TOKEN = '8757607697:AAEazhbC-8JcC2J6VdP-YGPIm-rsBAzXAnU';
-const CHAT_ID = '-5428602025';
+const CHAT_ID = '-5428602025'; // Убедись, что это верный ID группы с минусом
 let cart = [];
 
+// Функция добавления товара
 function addToCart(id, name, price) {
-    const item = cart.find(i => i.id === id);
-    if (item) item.quantity++;
-    else cart.push({ id, name, price, quantity: 1 });
+    cart.push({ id, name, price });
     updateCartUI();
 }
 
+// Обновление корзины
 function updateCartUI() {
     const list = document.getElementById('cart-items');
-    const count = document.getElementById('cart-count');
     const totalEl = document.getElementById('cart-total');
+    if (!list) return;
     
-    if (!list) return; // Если списка нет, ничего не делаем
-
     list.innerHTML = '';
     let total = 0;
     cart.forEach(i => {
-        total += i.price * i.quantity;
-        list.innerHTML += `<li>${i.name} x${i.quantity}</li>`;
+        total += i.price;
+        list.innerHTML += `<li>${i.name} — ${i.price} сум</li>`;
     });
-
-    if (count) count.textContent = cart.reduce((sum, i) => sum + i.quantity, 0);
-    if (totalEl) totalEl.textContent = total.toLocaleString(); // Проверка на null
+    if (totalEl) totalEl.textContent = total;
 }
 
+// Отправка заказа
 document.getElementById('order-form').addEventListener('submit', function(e) {
     e.preventDefault();
+    
     const name = document.getElementById('username').value;
     const phone = document.getElementById('phone').value;
-    const email = document.getElementById('email').value;
-
-    let itemsText = cart.map(i => `${i.name} x${i.quantity}`).join('\n');
-    let message = `ЗАКАЗ С САЙТА\n\nИмя: ${name}\nТелефон: ${phone}\nEmail: ${email}\n\nТовары:\n${itemsText}\n\nИтого: ${document.getElementById('cart-total').textContent} сум`;
+    
+    let message = `НОВЫЙ ЗАКАЗ:\nИмя: ${name}\nТелефон: ${phone}\nТовары:\n`;
+    cart.forEach(i => message += `${i.name} (${i.price} сум)\n`);
 
     fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
         method: 'POST',
@@ -44,7 +41,7 @@ document.getElementById('order-form').addEventListener('submit', function(e) {
     .then(r => r.json())
     .then(data => {
         if (data.ok) {
-            alert('Заказ успешно отправлен!');
+            alert('Заказ отправлен!');
             cart = [];
             updateCartUI();
             e.target.reset();
