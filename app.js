@@ -1,6 +1,6 @@
 // НАСТРОЙКИ ТЕЛЕГРАМА (Вставь свои данные сюда)
 const BOT_TOKEN = '8757607697:AAEazhbC-8JcC2J6VdP-YGPIm-rsBAzXAnU';
-const CHAT_ID = ' -5428602025';
+const CHAT_ID = '-5428602025';
 
 // Массив для хранения товаров в корзине
 let cart = [];
