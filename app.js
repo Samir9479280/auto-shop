@@ -85,7 +85,8 @@ function sendOrder(event) {
         submitBtn.disabled = true;
     }
 
-    // Делаем прямой запрос к серверам Telegram
+        // Делаем прямой запрос к серверам Telegram
+        // Делаем прямой запрос к серверам Telegram
     fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
         method: 'POST',
         headers: {
@@ -93,8 +94,7 @@ function sendOrder(event) {
         },
         body: JSON.stringify({
             chat_id: CHAT_ID,
-            text: message,
-            parse_mode: 'Markdown'
+            text: message // Убрали parse_mode, теперь это просто текст
         })
     })
     .then(response => response.json())
