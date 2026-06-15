@@ -3,98 +3,53 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Магазин автозапчастей</title>
+    <title>AutoParts.uz</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
-    <!-- Шапка сайта -->
     <header>
         <div class="container">
             <h1>AutoParts.uz</h1>
-            <div class="cart-status">
-                🛒 Корзина: <span id="cart-count">0</span> шт.
-            </div>
+            <div class="cart-status">🛒 Корзина: <span id="cart-count">0</span> шт.</div>
         </div>
     </header>
 
-    <!-- Каталог товаров -->
     <main class="container">
         <h2>Каталог запчастей</h2>
-         сум</p>
-                <button class="btn-buy" onclick="addToCart('Фильтр масляный Shell', '85 000 сум')">В корзину</button>
-                <div class="products-grid">
-            
-                    <div class="product-card">
-                        <div class="product-image">
-                            <img src="https://images.unsplash.com/photo-1619642751034-765dfdf7c58e?q=80&w=600&auto=format&fit=crop" alt="Свечи зажигания">
-                        </div>
-                        <h3>Свечи зажигания NGK</h3>
-                        <p class="article">Артикул: 4823</p>
-                        <p class="price">120 000 сум</p>
-                        <button class="btn-buy" onclick="addToCart('Свечи зажигания NGK', '120 000 сум')">В корзину</button>
-                    </div>
-        
-                    <div class="product-card">
-                        <div class="product-image">
-                            <img src="https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?q=80&w=600&auto=format&fit=crop" alt="Колодки тормозные">
-                        </div>
-                        <h3>Колодки тормозные Brembo</h3>
-                        <p class="article">Артикул: BR-992</p>
-                        <p class="price">450 000 сум</p>
-                        <button class="btn-buy" onclick="addToCart('Колодки тормозные Brembo', '450 000 сум')">В корзину</button>
-                    </div>
-        
-                    <div class="product-card">
-                        <div class="product-image">
-                            <img src="https://images.unsplash.com/photo-1635783515039-4467332d2073?q=80&w=600&auto=format&fit=crop" alt="Фильтр масляный">
-                        </div>
-                        <h3>Фильтр масляный Shell</h3>
-                        <p class="article">Артикул: SH-01</p>
-                        <p class="price">85 000 сум</p>
-                        <button class="btn-buy" onclick="addToCart('Фильтр масляный Shell', '85 000 сум')">В корзину</button>
-                    </div>
-        
-                </div>
-
+        <div class="products-grid">
+            <div class="product-card">
+                <h3>Свечи зажигания NGK</h3>
+                <p class="price">120 000 сум</p>
+                <button class="btn-buy" onclick="addToCart(1, 'Свечи зажигания NGK', 120000)">В корзину</button>
+            </div>
+            <div class="product-card">
+                <h3>Колодки Brembo</h3>
+                <p class="price">450 000 сум</p>
+                <button class="btn-buy" onclick="addToCart(2, 'Колодки Brembo', 450000)">В корзину</button>
+            </div>
+            <div class="product-card">
+                <h3>Фильтр Shell</h3>
+                <p class="price">85 000 сум</p>
+                <button class="btn-buy" onclick="addToCart(3, 'Фильтр Shell', 85000)">В корзину</button>
+            </div>
         </div>
 
-        <hr>
-
-        <!-- Оформление заказа -->
         <section class="order-section">
             <h2>Оформление заказа</h2>
-            
-            <!-- Список выбранных товаров перед глазами клиента -->
             <div class="order-summary">
                 <strong>Ваш заказ:</strong>
-                <ul id="cart-items">
-                    <li class="empty-text">Корзина пока пуста. Выберите товары выше.</li>
-                </ul>
+                <ul id="cart-items"><li>Корзина пуста</li></ul>
+                <p>Итого: <span id="cart-total">0</span> сум</p>
             </div>
 
-            <!-- Форма для сбора данных -->
             <form id="order-form">
-                <div class="form-group">
-                    <label for="username">Ваше имя *</label>
-                    <input type="text" id="username" placeholder="Например, Самир" required>
-                </div>
-            
-                <div class="form-group">
-                    <label for="phone">Номер телефона *</label>
-                    <input type="tel" id="phone" placeholder="+998901234567" required>
-                </div>
-            
-                <div class="form-group">
-                    <label for="email">Email (необязательно)</label>
-                    <input type="email" id="email" placeholder="example@mail.com">
-                </div>
-            
+                <input type="text" id="username" placeholder="Ваше имя" required>
+                <input type="tel" id="phone" placeholder="+998901234567" required>
+                <input type="email" id="email" placeholder="Email (необязательно)">
                 <button type="submit" class="btn-submit">Отправить заказ</button>
             </form>
         </section>
     </main>
-
     <script src="app.js"></script>
 </body>
 </html>
