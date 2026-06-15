@@ -13,14 +13,18 @@ function updateCartUI() {
     const list = document.getElementById('cart-items');
     const count = document.getElementById('cart-count');
     const totalEl = document.getElementById('cart-total');
+    
+    if (!list) return; // Если списка нет, ничего не делаем
+
     list.innerHTML = '';
     let total = 0;
     cart.forEach(i => {
         total += i.price * i.quantity;
         list.innerHTML += `<li>${i.name} x${i.quantity}</li>`;
     });
-    count.textContent = cart.reduce((sum, i) => sum + i.quantity, 0);
-    totalEl.textContent = total.toLocaleString();
+
+    if (count) count.textContent = cart.reduce((sum, i) => sum + i.quantity, 0);
+    if (totalEl) totalEl.textContent = total.toLocaleString(); // Проверка на null
 }
 
 document.getElementById('order-form').addEventListener('submit', function(e) {
