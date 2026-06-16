@@ -1,5 +1,5 @@
 const BOT_TOKEN = '8757607697:AAEazhbC-8JcC2J6VdP-YGPIm-rsBAzXAnU';
-const CHAT_ID = '-5428602025'; // Убедись, что это верный ID группы с минусом
+const CHAT_ID = '-1004436689296'; // Убедись, что это верный ID группы с минусом
 let cart = [];
 
 // Функция добавления товара
