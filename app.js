@@ -5,7 +5,7 @@
    const CHAT_ID ='-1004436689296';
    
    /* ============================================
-      СЛОВАРЬ ИНТЕРФЕЙСА
+      ПОЛНЫЙ СЛОВАРЬ ИНТЕРФЕЙСА
       ============================================ */
    const LANG = {
        ru: {
@@ -17,7 +17,9 @@
          sending: 'Отправка…',
          orderSent: 'Заказ отправлен! Мы скоро свяжемся с вами.',
          addItem: 'Добавьте хотя бы одну деталь в корзину',
-         noResults: 'По запросу ничего не найдено. Попробуйте другое слово или категорию.'
+         noResults: 'По запросу ничего не найдено. Попробуйте другое слово или категорию.',
+         skuPrefix: 'Арт. №',
+         currency: ' сум'
        },
      
        uz: {
@@ -29,11 +31,13 @@
          sending: 'Yuborilmoqda…',
          orderSent: "Buyurtma yuborildi! Tez orada siz bilan bog'lanamiz.",
          addItem: "Kamida bitta mahsulot qo'shing",
-         noResults: "So'rov bo'yicha hech narsa topilmadi. Boshqa so'z yoki turkum sinab ko'ring."
+         noResults: "So'rov bo'yicha hech narsa topilmadi. Boshqa so'z yoki turkum sinab ko'ring.",
+         skuPrefix: 'Art. №',
+         currency: ' soʻm'
        }
    };
    
-   /* Словарь для динамического перевода категорий */
+   /* Словарь для вкладок категорий */
    const CATEGORY_MAP = {
      'Все': { ru: 'Все', uz: 'Barchasi' },
      'Свечи зажигания': { ru: 'Свечи зажигания', uz: "O't oldirish shamchalari" },
@@ -68,8 +72,7 @@
    
    /* ---------- Хелперы ---------- */
    function formatSum(n) {
-     const currency = currentLang === 'ru' ? ' сум' : ' soʻm';
-     return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + currency;
+     return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + LANG[currentLang].currency;
    }
    
    function showToast(message, isError = false) {
@@ -84,14 +87,12 @@
    /* ---------- Табы категорий ---------- */
    function renderCategoryTabs() {
      const wrap = document.getElementById('category-tabs');
+     if (!wrap) return;
      wrap.innerHTML = '';
      CATEGORIES.forEach(cat => {
        const btn = document.createElement('button');
        btn.className = 'tab-btn' + (cat === activeCategory ? ' active' : '');
-       
-       // Подтягиваем перевод названия вкладки из карты соответствия
        btn.textContent = CATEGORY_MAP[cat] ? CATEGORY_MAP[cat][currentLang] : cat;
-       
        btn.type = 'button';
        btn.setAttribute('role', 'tab');
        btn.setAttribute('aria-selected', cat === activeCategory);
@@ -108,19 +109,22 @@
    function renderProducts() {
      const grid = document.getElementById('products-grid');
      const noResults = document.getElementById('no-results');
+     if (!grid) return;
+     
      const term = searchTerm.trim().toLowerCase();
    
      const filtered = PRODUCTS.filter(p => {
        const inCategory = activeCategory === 'Все' || p.category === activeCategory;
-       // Ищем соответствия по выбранному в данный момент языку
        const currentName = p[`name_${currentLang}`].toLowerCase();
        const inSearch = !term || currentName.includes(term) || p.brand.toLowerCase().includes(term);
        return inCategory && inSearch;
      });
    
      grid.innerHTML = '';
-     noResults.hidden = filtered.length !== 0;
-     noResults.textContent = LANG[currentLang].noResults;
+     if (noResults) {
+       noResults.hidden = filtered.length !== 0;
+       noResults.textContent = LANG[currentLang].noResults;
+     }
    
      filtered.forEach((p, i) => {
        const card = document.createElement('div');
@@ -128,7 +132,7 @@
        card.style.animationDelay = (i * 0.04) + 's';
        card.innerHTML = `
          <div class="product-card-top">
-           <span class="product-sku">${currentLang === 'ru' ? 'Арт. №' : 'Art. №'}${p.sku}</span>
+           <span class="product-sku">${LANG[currentLang].skuPrefix}${p.sku}</span>
            <span class="product-brand">${p.brand}</span>
          </div>
          <h3>${p[`name_${currentLang}`]}</h3>
@@ -160,8 +164,7 @@
      updateCartUI();
    
      const product = PRODUCTS.find(p => p.id === id);
-     const actionText = currentLang === 'ru' ? 'Добавлено' : "Qo'shildi";
-     showToast(`${actionText}: ${product[`name_${currentLang}`]}`);
+     showToast(`${LANG[currentLang].added}: ${product[`name_${currentLang}`]}`);
    
      if (btnEl) {
        btnEl.classList.add('added');
@@ -169,8 +172,10 @@
      }
    
      const pill = document.getElementById('cart-pill');
-     pill.classList.add('bump');
-     setTimeout(() => pill.classList.remove('bump'), 250);
+     if (pill) {
+       pill.classList.add('bump');
+       setTimeout(() => pill.classList.remove('bump'), 250);
+     }
    }
    
    function changeQty(id, delta) {
@@ -194,13 +199,15 @@
      const cartCount = document.getElementById('cart-count');
      const submitBtn = document.getElementById('submit-btn');
    
+     if (!itemsWrap || !totalEl) return;
+   
      const totalQty = cart.reduce((sum, i) => sum + i.qty, 0);
-     cartCount.textContent = totalQty;
+     if (cartCount) cartCount.textContent = totalQty;
    
      if (cart.length === 0) {
        itemsWrap.innerHTML = `<p class="receipt-empty" id="receipt-empty">${LANG[currentLang].emptyCart}</p>`;
        totalEl.textContent = formatSum(0);
-       submitBtn.disabled = true;
+       if (submitBtn) submitBtn.disabled = true;
        return;
      }
    
@@ -216,14 +223,14 @@
        row.className = 'receipt-row';
        row.innerHTML = `
          <div class="qty-stepper">
-           <button type="button" data-action="dec" aria-label="${currentLang === 'ru' ? 'Уменьшить количество' : 'Kamaytirish'}">−</button>
+           <button type="button" data-action="dec" aria-label="-">−</button>
            <span>${item.qty}</span>
-           <button type="button" data-action="inc" aria-label="${currentLang === 'ru' ? 'Увеличить количество' : 'Koʻpaytirish'}">+</button>
+           <button type="button" data-action="inc" aria-label="+">+</button>
          </div>
          <span class="receipt-item-name">${product[`name_${currentLang}`]}</span>
          <span class="receipt-leader"></span>
          <span class="receipt-item-price">${formatSum(lineTotal)}</span>
-         <button type="button" class="receipt-remove" aria-label="${currentLang === 'ru' ? 'Удалить' : 'Oʻchirish'}">×</button>
+         <button type="button" class="receipt-remove" aria-label="x">×</button>
        `;
        row.querySelector('[data-action="dec"]').addEventListener('click', () => changeQty(item.id, -1));
        row.querySelector('[data-action="inc"]').addEventListener('click', () => changeQty(item.id, 1));
@@ -232,20 +239,25 @@
      });
    
      totalEl.textContent = formatSum(total);
-     submitBtn.disabled = false;
+     if (submitBtn) submitBtn.disabled = false;
    }
    
-   /* ---------- Наряд-заказ дата/номер ---------- */
+   /* ---------- Дата и номер заказа ---------- */
    function initReceiptHeader() {
-     const num = 'AP-' + Math.floor(1000 + Math.random() * 9000);
-     document.getElementById('order-number').textContent = num;
+     const numEl = document.getElementById('order-number');
+     const dateEl = document.getElementById('order-date');
      
-     const currentLocale = currentLang === 'ru' ? 'ru-RU' : 'uz-UZ';
-     document.getElementById('order-date').textContent = new Date().toLocaleDateString(currentLocale);
+     if (numEl && !numEl.textContent) {
+       numEl.textContent = 'AP-' + Math.floor(1000 + Math.random() * 9000);
+     }
+     if (dateEl) {
+       const currentLocale = currentLang === 'ru' ? 'ru-RU' : 'uz-UZ';
+       dateEl.textContent = new Date().toLocaleDateString(currentLocale);
+     }
    }
    
-   /* ---------- Отправка заказа в Telegram ---------- */
-   document.getElementById('order-form').addEventListener('submit', function (e) {
+   /* ---------- Обработка формы заказа ---------- */
+   document.getElementById('order-form')?.addEventListener('submit', function (e) {
      e.preventDefault();
    
      if (cart.length === 0) {
@@ -258,12 +270,14 @@
      const email = document.getElementById('email').value.trim();
    
      const submitBtn = document.getElementById('submit-btn');
-     const label = submitBtn.querySelector('.btn-label');
-     submitBtn.disabled = true;
-     submitBtn.classList.add('sending');
-     label.textContent = LANG[currentLang].sending;
+     const label = submitBtn?.querySelector('.btn-label');
+     
+     if (submitBtn && label) {
+       submitBtn.disabled = true;
+       submitBtn.classList.add('sending');
+       label.textContent = LANG[currentLang].sending;
+     }
    
-     // Формируем текст отчета в зависимости от выбранного пользователем языка
      let message = currentLang === 'ru'
        ? `🔧 НОВЫЙ ЗАКАЗ AutoParts.uz\n\nИмя: ${name}\nТелефон: ${phone}\n`
        : `🔧 YANGI BUYURTMA AutoParts.uz\n\nIsm: ${name}\nTelefon: ${phone}\n`;
@@ -297,6 +311,7 @@
            cart = [];
            updateCartUI();
            e.target.reset();
+           document.getElementById('order-number').textContent = '';
            initReceiptHeader();
          } else {
            const errText = currentLang === 'ru' ? 'Ошибка отправки: ' : 'Yuborishda xatolik: ';
@@ -310,25 +325,27 @@
          showToast(netErr, true);
        })
        .finally(() => {
-         submitBtn.classList.remove('sending');
-         label.textContent = LANG[currentLang].sendOrder;
-         submitBtn.disabled = cart.length === 0;
+         if (submitBtn && label) {
+           submitBtn.classList.remove('sending');
+           label.textContent = LANG[currentLang].sendOrder;
+           submitBtn.disabled = cart.length === 0;
+         }
        });
    });
    
    /* ---------- Поиск ---------- */
-   document.getElementById('search-input').addEventListener('input', e => {
+   document.getElementById('search-input')?.addEventListener('input', e => {
      searchTerm = e.target.value;
      renderProducts();
    });
    
    /* ---------- Скролл к корзине ---------- */
-   document.getElementById('cart-pill').addEventListener('click', () => {
-     document.getElementById('order').scrollIntoView({ behavior: 'smooth', block: 'start' });
+   document.getElementById('cart-pill')?.addEventListener('click', () => {
+     document.getElementById('order')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
    });
    
    /* ============================================
-      ФУНКЦИЯ СМЕНЫ ЯЗЫКА (ПОЛНАЯ СБОРКА)
+      ГЛОБАЛЬНАЯ ФУНКЦИЯ ПЕРЕКЛЮЧЕНИЯ ЯЗЫКА
       ============================================ */
    function setLang(lang) {
        currentLang = lang;
@@ -341,123 +358,135 @@
        });
      
        if (lang === 'uz') {
-         // Шапка
+         // Навигация верхняя
          document.querySelector('a[href="#catalog"]').textContent = 'Katalog';
          document.querySelector('a[href="#order"]').textContent = 'Buyurtma';
          document.querySelector('a[href="#footer"]').textContent = 'Kontaktlar';
      
-         // Главный экран (Hero)
+         // Секция Hero
          document.querySelector('.hero-content .eyebrow').textContent = 'Ehtiyot qismlar katalogi · Oʻzbekiston';
          document.querySelector('.hero-content h1').innerHTML = 'Original ehtiyot qismlar.<br>Soxtasiz va ortiqcha toʻlovsiz.';
          document.querySelector('.hero-sub').textContent = 'NGK, Brembo, Bosch, Shell, Mann-Filter va Varta brendlarining original mahsulotlari. Buyurtma bir daqiqada rasmiylashtiriladi.';
          document.querySelector('.hero-actions .btn-primary').textContent = 'Katalogni koʻrish';
          document.querySelector('.hero-actions .btn-ghost').textContent = 'Buyurtmaga oʻtish →';
      
-         // Преимущества
-         document.querySelectorAll('.trust-row li')[0].lastChild.textContent = 'Oʻzbekiston bo‘ylab yetkazib berish';
-         document.querySelectorAll('.trust-row li')[1].lastChild.textContent = 'Faqat original mahsulotlar';
-         document.querySelectorAll('.trust-row li')[2].lastChild.textContent = 'Qabul qilganda toʻlov';
+         // Иконки преимуществ (Текст за тегом SVG)
+         const trustItems = document.querySelectorAll('.trust-row li');
+         if (trustItems.length >= 3) {
+           trustItems[0].lastChild.textContent = 'Oʻzbekiston bo‘ylab yetkazib berish';
+           trustItems[1].lastChild.textContent = 'Faqat original mahsulotlar';
+           trustItems[2].lastChild.textContent = 'Qabul qilganda toʻlov';
+         }
          
-         // Чертёж
+         // Чертёж на главном экране
          document.querySelector('.hero-visual .bp-label-sm').textContent = '2 DONA TOʻPLAM';
      
-         // Секция Каталога
-         document.querySelector('#catalog .eyebrow').textContent = 'Katalog';
-         document.querySelector('#catalog h2').textContent = 'Kerakli ehtiyot qismini tanlang';
-         document.querySelector('#catalog .section-sub').textContent = 'Barcha mahsulotlar Toshkent omborida mavjud, buyurtma kunining oʻzida yuboriladi.';
+         // Секция каталога (Заголовки и поиск)
+         document.querySelector('#catalog .section-head .eyebrow').textContent = 'Katalog';
+         document.querySelector('#catalog .section-head h2').textContent = 'Kerakli ehtiyot qismini tanlang';
+         document.querySelector('#catalog .section-head .section-sub').textContent = 'Barcha mahsulotlar Toshkent omborida mavjud, buyurtma kunining oʻzida yuboriladi.';
          document.getElementById('search-input').placeholder = 'Mahsulot yoki brendni qidiring…';
      
-         // Секция Оформления заказа
-         document.querySelector('#order .eyebrow').textContent = 'Buyurtma rasmiylashtirish';
-         document.querySelector('#order h2').textContent = 'Sizning buyurtmangiz';
-         document.querySelector('#order .section-sub').textContent = 'Kontakt maʼlumotlarini toʻldiring — menejer tasdiqlash va yetkazib berishni hisoblash uchun bogʻlanadi.';
+         // Секция оформления заказа (Исправлено разделение подзаголовков)
+         document.querySelector('#order .section-head .eyebrow').textContent = 'Buyurtma rasmiylashtirish';
+         document.querySelector('#order .section-head h2').textContent = 'Sizning buyurtmangiz';
+         document.querySelector('#order .section-head .section-sub').textContent = 'Kontakt maʼlumotlarini toʻldiring — menejer tasdiqlash va yetkazib berishni hisoblash uchun bogʻlanadi.';
          
-         // Текст чека
-         document.querySelector('.receipt-header span:first-child').childNodes[0].textContent = 'BUYURTMA-NARYAD ';
+         // Текст самого чека наряд-заказа
+         const receiptTitleWrap = document.querySelector('.receipt-header span:first-child');
+         if (receiptTitleWrap) receiptTitleWrap.childNodes[0].textContent = 'BUYURTMA-NARYAD ';
          document.querySelector('.receipt-total-row span:first-child').textContent = 'JAMI';
    
-         // Поля формы
+         // Элементы формы заказа
          document.querySelector('label[for="username"]').textContent = 'Ism';
          document.getElementById('username').placeholder = 'Ismingizni kiriting';
          document.querySelector('label[for="phone"]').textContent = 'Telefon';
          document.querySelector('label[for="email"]').innerHTML = 'Email <span class="optional">(ixtiyoriy)</span>';
          document.getElementById('email').placeholder = 'you@example.com';
          
-         // Кнопка и примечание формы
          document.querySelector('.form-note').textContent = 'Buyurtmalar qoʻlda qayta ishlanadi, ish vaqtida 30 daqiqa ichida javob beramiz.';
-         document.querySelector('.btn-submit .btn-label').textContent = 'Buyurtmani yuborish';
+         document.querySelector('#submit-btn .btn-label').textContent = 'Buyurtmani yuborish';
          
          // Подвал (Footer)
          document.querySelector('.footer-brand p').textContent = 'Sinalgan brendlarning avtoehtiyot qismlari Oʻzbekiston boʻylab yetkazib berish bilan.';
-         document.querySelectorAll('.footer-col h3')[0].textContent = 'Kontaktlar';
-         document.querySelectorAll('.footer-col p')[1].textContent = 'Guliston';
-         document.querySelectorAll('.footer-col h3')[1].textContent = 'Ish tartibi';
-         document.querySelectorAll('.footer-col p')[2].textContent = 'Dush–Yak: 9:00–19:00';
+         const footerCols = document.querySelectorAll('.footer-col');
+         if (footerCols.length >= 2) {
+           footerCols[0].querySelector('h3').textContent = 'Kontaktlar';
+           footerCols[0].querySelectorAll('p')[1].textContent = 'Guliston';
+           footerCols[1].querySelector('h3').textContent = 'Ish tartibi';
+           footerCols[1].querySelectorAll('p').textContent = 'Dush–Yak: 9:00–19:00';
+         }
          document.querySelector('.footer-bottom span').textContent = '© 2026 AutoParts.uz';
        } else {
-         // Шапка
+         // Навигация верхняя
          document.querySelector('a[href="#catalog"]').textContent = 'Каталог';
          document.querySelector('a[href="#order"]').textContent = 'Заказ';
          document.querySelector('a[href="#footer"]').textContent = 'Контакты';
      
-         // Главный экран (Hero)
+         // Секция Hero
          document.querySelector('.hero-content .eyebrow').textContent = 'Каталог запчастей · Узбекистан';
          document.querySelector('.hero-content h1').innerHTML = 'Оригинальные детали.<br>Без подделок и переплат.';
          document.querySelector('.hero-sub').textContent = 'Свечи, тормозная система, фильтры, масла и аккумуляторы проверенных брендов — NGK, Brembo, Bosch, Shell, Mann-Filter, Varta. Заказ оформляется за минуту.';
          document.querySelector('.hero-actions .btn-primary').textContent = 'Смотреть каталог';
          document.querySelector('.hero-actions .btn-ghost').textContent = 'Перейти к заказу →';
      
-         // Преимущества
-         document.querySelectorAll('.trust-row li')[0].lastChild.textContent = 'Доставка по Узбекистану';
-         document.querySelectorAll('.trust-row li')[1].lastChild.textContent = 'Только оригинал';
-         document.querySelectorAll('.trust-row li')[2].lastChild.textContent = 'Оплата при получении';
+         // Иконки преимуществ
+         const trustItems = document.querySelectorAll('.trust-row li');
+         if (trustItems.length >= 3) {
+           trustItems[0].lastChild.textContent = 'Доставка по Узбекистану';
+           trustItems[1].lastChild.textContent = 'Только оригинал';
+           trustItems[2].lastChild.textContent = 'Оплата при получении';
+         }
          
-         // Чертёж
+         // Чертёж на главном экране
          document.querySelector('.hero-visual .bp-label-sm').textContent = 'КОМПЛЕКТ 2 ШТ';
      
-         // Секция Каталога
-         document.querySelector('#catalog .eyebrow').textContent = 'Каталог';
-         document.querySelector('#catalog h2').textContent = 'Подберите деталь';
-         document.querySelector('#catalog .section-sub').textContent = 'Все позиции в наличии на складе в Ташкенте, отправка в день заказа.';
+         // Секция каталога
+         document.querySelector('#catalog .section-head .eyebrow').textContent = 'Каталог';
+         document.querySelector('#catalog .section-head h2').textContent = 'Подберите деталь';
+         document.querySelector('#catalog .section-head .section-sub').textContent = 'Все позиции в наличии на складе в Ташкенте, отправка в день заказа.';
          document.getElementById('search-input').placeholder = 'Найти деталь или бренд…';
      
-         // Секция Оформления заказа
-         document.querySelector('#order .eyebrow').textContent = 'Оформление';
-         document.querySelector('#order h2').textContent = 'Ваш заказ';
-         document.querySelector('#order .section-sub').textContent = 'Заполните контакты — менеджер свяжется для подтверждения и расчёта доставки.';
+         // Секция оформления заказа
+         document.querySelector('#order .section-head .eyebrow').textContent = 'Оформление';
+         document.querySelector('#order .section-head h2').textContent = 'Ваш заказ';
+         document.querySelector('#order .section-head .section-sub').textContent = 'Заполните контакты — менеджер свяжется для подтверждения и расчёта доставки.';
          
          // Текст чека
-         document.querySelector('.receipt-header span:first-child').childNodes[0].textContent = 'НАРЯД-ЗАКАЗ ';
+         const receiptTitleWrap = document.querySelector('.receipt-header span:first-child');
+         if (receiptTitleWrap) receiptTitleWrap.childNodes[0].textContent = 'НАРЯД-ЗАКАЗ ';
          document.querySelector('.receipt-total-row span:first-child').textContent = 'ИТОГО';
    
-         // Поля формы
+         // Элементы формы заказа
          document.querySelector('label[for="username"]').textContent = 'Имя';
          document.getElementById('username').placeholder = 'Как к вам обращаться';
          document.querySelector('label[for="phone"]').textContent = 'Телефон';
          document.querySelector('label[for="email"]').innerHTML = 'Email <span class="optional">(необязательно)</span>';
          document.getElementById('email').placeholder = 'you@example.com';
          
-         // Кнопка и примечание формы
          document.querySelector('.form-note').textContent = 'Заказы обрабатываются вручную, ответим в течение 30 минут в рабочее время.';
-         document.querySelector('.btn-submit .btn-label').textContent = 'Отправить заказ';
+         document.querySelector('#submit-btn .btn-label').textContent = 'Отправить заказ';
          
          // Подвал (Footer)
          document.querySelector('.footer-brand p').textContent = 'Автозапчасти проверенных брендов с доставкой по Узбекистану.';
-         document.querySelectorAll('.footer-col h3')[0].textContent = 'Контакты';
-         document.querySelectorAll('.footer-col p')[1].textContent = 'Гулистан';
-         document.querySelectorAll('.footer-col h3')[1].textContent = 'Режим работы';
-         document.querySelectorAll('.footer-col p')[2].textContent = 'Пн–Вс: 9:00–19:00';
+         const footerCols = document.querySelectorAll('.footer-col');
+         if (footerCols.length >= 2) {
+           footerCols[0].querySelector('h3').textContent = 'Контакты';
+           footerCols[0].querySelectorAll('p')[1].textContent = 'Гулистан';
+           footerCols[1].querySelector('h3').textContent = 'Режим работы';
+           footerCols[1].querySelectorAll('p').textContent = 'Пн–Вс: 9:00–19:00';
+         }
          document.querySelector('.footer-bottom span').textContent = '© 2026 AutoParts.uz';
        }
      
-       // Перерисовываем интерфейс с новыми строковыми данными
+       // Тотальная перерисовка зависимых динамических компонентов
        renderCategoryTabs();
        renderProducts();
        updateCartUI();
        initReceiptHeader();
    }
    
-   /* ---------- Инициализация приложения ---------- */
+   /* ---------- Инициализация при первой загрузке ---------- */
    renderCategoryTabs();
    renderProducts();
    updateCartUI();
