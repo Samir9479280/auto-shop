@@ -8,8 +8,8 @@
    2) Вставь новый токен ниже вместо плейсхолдера.
    CHAT_ID уже верный — это id супергруппы "pjpjpj".
 */
-const BOT_TOKEN = '8757607697:AAEazhbC-8JcC2J6VdP-YGPIm-rsBAzXAnU';
-const CHAT_ID = '-1004436689296';
+const BOT_TOKEN ='8757607697:AAEazhbC-8JcC2J6VdP-YGPIm-rsBAzXAnU';
+const CHAT_ID ='-1004436689296';
 
 /* ============================================
    КАТАЛОГ — единственный источник данных.
