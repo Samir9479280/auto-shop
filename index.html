@@ -15,16 +15,16 @@
         <div class="brand-text">AUTOPARTS<span class="brand-accent">.UZ</span></div>
       </a>
       <nav class="main-nav">
-        <a href="#catalog">Каталог</a>
-        <a href="#order">Оформление</a>
+        <a href="#catalog" data-i18n="nav-catalog">Каталог</a>
+        <a href="#order" data-i18n="nav-order">Оформление</a>
       </nav>
-      <div class="lang-switcher">
-        <button class="lang-btn active">RU</button>
-        <button class="lang-btn">UZ</button>
+      <div class="lang-switcher" id="lang-switcher">
+        <button class="lang-btn active" data-lang="ru">RU</button>
+        <button class="lang-btn" data-lang="uz">UZ</button>
       </div>
       <button class="cart-pill" id="cart-total-btn">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
-        <span id="cart-count">0</span> шт.
+        <span id="cart-count">0</span> <span data-i18n="cart-units">шт.</span>
       </button>
     </div>
   </header>
@@ -33,12 +33,12 @@
     <div class="hero-grid"></div>
     <div class="container hero-inner">
       <div class="hero-content">
-        <div class="eyebrow">Профессиональные компоненты</div>
-        <h1>Оригинальные запчасти и аналоги</h1>
-        <p class="hero-sub">Более 250 наименований деталей в наличии на складе в Ташкенте. Экспресс-доставка по всему Узбекистану.</p>
+        <div class="eyebrow" data-i18n="hero-eyebrow">Профессиональные компоненты</div>
+        <h1 data-i18n="hero-title">Оригинальные запчасти и аналоги</h1>
+        <p class="hero-sub" data-i18n="hero-sub">Более 250 наименований деталей в наличии на складе в Ташкенте. Экспресс-доставка по всему Узбекистану.</p>
         <div class="hero-actions">
-          <a href="#catalog" class="btn btn-primary">Перейти к каталогу</a>
-          <a href="#order" class="btn btn-ghost">Ваш заказ</a>
+          <a href="#catalog" class="btn btn-primary" data-i18n="btn-go-catalog">Перейти к каталогу</a>
+          <a href="#order" class="btn btn-ghost" data-i18n="btn-your-order">Ваш заказ</a>
         </div>
       </div>
     </div>
@@ -47,40 +47,40 @@
   <section class="catalog-section" id="catalog">
     <div class="container">
       <div class="section-head">
-        <h2>Каталог запчастей</h2>
-        <p class="section-sub">Используйте фильтры и поиск для быстрого подбора нужной детали</p>
+        <h2 data-i18n="catalog-title">Каталог запчастей</h2>
+        <p class="section-sub" data-i18n="catalog-sub">Используйте фильтры и поиск для быстрого подбора нужной детали</p>
       </div>
 
       <div class="catalog-controls">
         <div class="search-box">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-          <input type="text" id="search-input" placeholder="Поиск по названию, бренду или артикулу...">
+          <input type="text" id="search-input" placeholder="Поиск...">
         </div>
         <div class="category-tabs" id="category-filters">
-          <button class="tab-btn active" data-category="all">Все детали</button>
-          <button class="tab-btn" data-category="engine">Двигатель</button>
-          <button class="tab-btn" data-category="brake">Тормозная система</button>
-          <button class="tab-btn" data-category="suspension">Подвеска</button>
-          <button class="tab-btn" data-category="electric">Электрика</button>
+          <button class="tab-btn active" data-category="all" data-i18n="cat-all">Все детали</button>
+          <button class="tab-btn" data-category="engine" data-i18n="cat-engine">Двигатель</button>
+          <button class="tab-btn" data-category="brake" data-i18n="cat-brake">Тормозная система</button>
+          <button class="tab-btn" data-category="suspension" data-i18n="cat-suspension">Подвеска</button>
+          <button class="tab-btn" data-category="electric" data-i18n="cat-electric">Электрика</button>
         </div>
       </div>
 
       <div class="products-grid" id="products-container"></div>
-      <div class="no-results" id="no-results" style="display: none;">По вашему запросу ничего не найдено. Попробуйте изменить фильтры.</div>
+      <div class="no-results" id="no-results" style="display: none;" data-i18n="no-results">По вашему запросу ничего не найдено.</div>
     </div>
   </section>
 
   <section class="order-section" id="order">
     <div class="container">
       <div class="section-head">
-        <h2>Оформление заказа</h2>
+        <h2 data-i18n="order-title">Оформление заказа</h2>
       </div>
 
       <div class="receipt">
         <div class="receipt-perf"></div>
         <div class="receipt-body">
           <div class="receipt-header">
-            <span>Предварительный чек</span>
+            <span data-i18n="receipt-spec">Предварительный чек</span>
             <span id="order-number"></span>
           </div>
 
@@ -89,32 +89,32 @@
           <div class="receipt-divider"></div>
 
           <div class="receipt-total-row">
-            <span>Итого к оплате:</span>
+            <span data-i18n="receipt-total">Итого к оплате:</span>
             <span id="cart-total-price">0 сум</span>
           </div>
 
           <form id="order-form">
             <div class="field">
-              <label for="client-name">Имя получателя</label>
-              <input type="text" id="client-name" required placeholder="Например, Азиз">
+              <label for="client-name" data-i18n="form-name">Имя получателя</label>
+              <input type="text" id="client-name" required placeholder="Ahmad">
             </div>
             <div class="field">
-              <label for="client-phone">Номер телефона</label>
+              <label for="client-phone" data-i18n="form-phone">Номер телефона</label>
               <input type="tel" id="client-phone" required placeholder="+998 90 123 45 67">
             </div>
             <button type="submit" class="btn-submit" id="submit-btn" disabled>
               <div class="btn-led"></div>
-              <span>Подтвердить заказ</span>
+              <span data-i18n="btn-submit">Подтвердить заказ</span>
             </button>
           </form>
-          <p class="form-note">Наш менеджер свяжется с вами для уточнения деталей доставки</p>
+          <p class="form-note" data-i18n="form-note">Наш менеджер свяжется с вами для уточнения деталей доставки</p>
         </div>
       </div>
     </div>
   </section>
 
   <footer class="site-footer">
-    <div class="container footer-bottom">
+    <div class="container footer-bottom" data-i18n="footer-text">
       &copy; 2026 AutoParts.uz. Разработано для профессионалов. Все права защищены.
     </div>
   </footer>
