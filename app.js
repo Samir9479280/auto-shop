@@ -1,17 +1,17 @@
 /**
- * AutoParts.uz — Версия с умной диагностикой Telegram-ошибок
+ * AutoParts.uz — Версия с адресом доставки и диагностикой Telegram
  */
 
 // ==========================================
 // ⚠️ ВСТАВЬ СВОИ ДАННЫЕ СЮДА!
 // ==========================================
 const TG_CONFIG = {
-    BOT_TOKEN: "8757607697:AAEazhbC-8JcC2J6VdP-YGPIm-rsBAzXAnU",     // Удали этот текст и верни свой токен бота
-    CHAT_ID: "-1004436689296"    // Твой ID чата (для групп обязательно с минусом, например: -100xxxxxx)
+    BOT_TOKEN: "ВАШ_ТОКЕН_БОТА",     // Твой рабочий токен бота
+    CHAT_ID: "ВАШ_ID_ГРУППЫ"        // Твой ID чата (с минусом для групп)
   };
   
   // ==========================================
-  // 1. СЛОВАРЬ ПЕРЕВОДА ИНТЕРФЕЙСА
+  // 1. СЛОВАРЬ ПЕРЕВОДА ИНТЕРФЕЙСА (Добавлен адрес)
   // ==========================================
   const Translations = {
     ru: {
@@ -36,6 +36,7 @@ const TG_CONFIG = {
       "receipt-total": "Итого к оплате:",
       "form-name": "Имя получателя",
       "form-phone": "Номер телефона",
+      "form-address": "Адрес доставки", // Новый перевод
       "btn-submit": "Подтвердить заказ",
       "form-note": "Наш менеджер свяжется с вами для уточнения деталей доставки",
       "footer-text": "© 2026 AutoParts.uz. Разработано для профессионалов. Все права защищены.",
@@ -60,7 +61,7 @@ const TG_CONFIG = {
       "btn-go-catalog": "Katalogni ko'rish",
       "btn-your-order": "Sizning buyurtmangiz",
       "catalog-title": "Ehtiyot qismlar katalogi",
-      "catalog-sub": "Kerakli qismni tezda topish uchun filtrlardan va qidiruvdan foydalaning",
+      "catalog-sub": "Kerakli qismni tezda topish uchun filtrlardan va qidiruvdan foyданalaning",
       "cat-all": "Barcha qismlar",
       "cat-engine": "Dvigatel",
       "cat-brake": "Tormoz tizimi",
@@ -72,6 +73,7 @@ const TG_CONFIG = {
       "receipt-total": "To'lov uchun jami:",
       "form-name": "Qabul qiluvchining ismi",
       "form-phone": "Telefon raqami",
+      "form-address": "Yetkazib berish manzili", // Новый перевод
       "btn-submit": "Buyurtmani tasdiqlash",
       "form-note": "Yetkazib berish tafsilotlarini aniqlashtirish uchun menejerimiz siz bilan bog'lanadi",
       "footer-text": "© 2026 AutoParts.uz. Barcha huquqlar himoyalangan.",
@@ -158,6 +160,14 @@ const TG_CONFIG = {
   
     if (AppState.DOM.searchInput) {
       AppState.DOM.searchInput.placeholder = Translations[lang]["search-placeholder"];
+    }
+  
+    // Динамическая смена плейсхолдера для адреса
+    const addressInput = document.getElementById('client-address');
+    if (addressInput) {
+      addressInput.placeholder = lang === 'ru' 
+        ? "Город, район, улица, дом, ориентир..." 
+        : "Shahar, tuman, ko'cha, uy, mo'ljal...";
     }
   
     renderProducts();
@@ -250,7 +260,7 @@ const TG_CONFIG = {
   }
   
   // ==========================================
-  // 5. ФУНКЦИЯ ОТПРАВКИ С ДИАГНОСТИКОЙ ОШИБОК
+  // 5. ОТПРАВКА В TELEGRAM (С УЧЕТОМ АДРЕСА)
   // ==========================================
   function sendOrderToManager(e) {
     e.preventDefault();
@@ -259,11 +269,11 @@ const TG_CONFIG = {
     
     const clientName = document.getElementById('client-name').value.trim();
     const clientPhone = document.getElementById('client-phone').value.trim();
+    const clientAddress = document.getElementById('client-address').value.trim(); // Считываем адрес
     const orderNum = DOM.orderNumber.textContent;
   
-    // Проверка заглушек
     if (TG_CONFIG.BOT_TOKEN.includes("ВАШ_ТОКЕН") || TG_CONFIG.CHAT_ID.includes("ВАШ_ID")) {
-      alert("⚠️ Стоп! Вы забыли указать свои реальные данные Telegram в самом верху файла app.js в переменной TG_CONFIG.");
+      alert("⚠️ Укажите свои токены Telegram в начале файла app.js!");
       return;
     }
   
@@ -271,12 +281,14 @@ const TG_CONFIG = {
     DOM.submitBtn.querySelector('span').textContent = langText["sending"];
     DOM.submitBtn.disabled = true;
   
+    // Формируем чистый текст (включая Адрес)
     let message = `🛠 НОВЫЙ ЗАКАЗ — AUTOPARTS.UZ\n`;
     message += `Номер чека: ${orderNum}\n`;
     message += `Язык клиента: ${currentLang.toUpperCase()}\n`;
     message += `=====================================\n`;
     message += `👤 Клиент: ${clientName}\n`;
     message += `📞 Телефон: ${clientPhone}\n`;
+    message += `📍 Адрес доставки: ${clientAddress}\n`; // Выводим в Telegram
     message += `=====================================\n`;
     message += `📦 Состав заказа:\n\n`;
   
@@ -303,15 +315,13 @@ const TG_CONFIG = {
       })
     })
     .then(async response => {
-      // ЕСЛИ ТЕЛЕГРАМ СКАЗАЛ "НЕТ" — вытягиваем причину ошибки
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.description || `Код ответа сервера: ${response.status}`);
+        throw new Error(errorData.description || `Код: ${response.status}`);
       }
       return response.json();
     })
     .then(data => {
-      // Если всё ок
       DOM.submitBtn.classList.remove('sending');
       DOM.submitBtn.querySelector('span').textContent = langText["success-btn"];
       fireToast(langText["toast-success"]);
@@ -323,18 +333,16 @@ const TG_CONFIG = {
       DOM.orderNumber.textContent = `#AP-UZ-${Math.floor(20000 + Math.random() * 79999)}`;
     })
     .catch(error => {
-      // ВСПЛЫВАЮЩЕЕ ОКНО С ДИАГНОЗОМ ОШИБКИ
       DOM.submitBtn.classList.remove('sending');
       DOM.submitBtn.disabled = false;
       DOM.submitBtn.querySelector('span').textContent = langText["btn-submit"];
       fireToast(langText["toast-error"]);
-      
-      alert(`❌ ОШИБКА TELEGRAM API!\n\nСервер сообщил: "${error.message}"\n\nПожалуйста, убедитесь, что:\n1. Токен вашего бота правильный.\n2. ID чата/группы указан точно (для групп нужен знак "минус" в начале).\n3. Ваш бот добавлен в эту группу как Администратор.`);
+      alert(`❌ ОШИБКА TELEGRAM API!\n\nСервер сообщил: "${error.message}"`);
     });
   }
   
   // ==========================================
-  // 6. ОСТАЛЬНЫЕ ОБРАБОТЧИКИ СОБЫТИЙ
+  // 6. ИНИЦИАЛИЗАЦИЯ И СЛУШАТЕЛИ
   // ==========================================
   function bindStoreEvents() {
     const { DOM } = AppState;
