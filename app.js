@@ -1,14 +1,19 @@
 /**
- * AutoParts.uz — Мультиязычная база данных и логика
+ * AutoParts.uz — Полная рабочая сборка (Каталог, Мультиязычность и Стабильный Telegram)
  */
+
+// ==========================================
+// ⚠️ ОБЯЗАТЕЛЬНО ВСТАВЬ СВОИ ДАННЫЕ СЮДА!
+// ==========================================
 const TG_CONFIG = {
-    BOT_TOKEN: "8757607697:AAEazhbC-8JcC2J6VdP-YGPIm-rsBAzXAnU",     // Сюда токен от @BotFather (например: '123456:ABC-DEF...')
-    CHAT_ID: "-1004436689296"        // Сюда ID группы или канала (например: '-100123456789' или '51234567')
+    BOT_TOKEN: "8757607697:AAEazhbC-8JcC2J6VdP-YGPIm-rsBAzXAnU",     // Удали этот текст и верни свой токен бота
+    CHAT_ID: "-1004436689296"        // Удали этот текст и верни свой ID группы/чата
   };
-// ==========================================
-// 1. СЛОВАРЬ ПЕРЕВОДА ИНТЕРФЕЙСА (UI TRANSLATIONS)
-// ==========================================
-const Translations = {
+  
+  // ==========================================
+  // 1. СЛОВАРЬ ПЕРЕВОДА ИНТЕРФЕЙСА
+  // ==========================================
+  const Translations = {
     ru: {
       "nav-catalog": "Каталог",
       "nav-order": "Оформление",
@@ -25,7 +30,7 @@ const Translations = {
       "cat-brake": "Тормозная система",
       "cat-suspension": "Подвеска",
       "cat-electric": "Электрика",
-      "no-results": "По вашему запросу ничего не найдено. Попробуйте изменить фильтры.",
+      "no-results": "По вашему запросу ничего не найдено.",
       "order-title": "Оформление заказа",
       "receipt-spec": "Предварительный чек",
       "receipt-total": "Итого к оплате:",
@@ -40,9 +45,10 @@ const Translations = {
       "cart-empty": "Ваша корзина пуста. Выберите детали в каталоге.",
       "toast-add": "Запчасть добавлена в чек",
       "toast-remove": "Деталь удалена из корзины",
-      "toast-success": "Заказ принят! Ожидайте звонка менеджера.",
-      "sending": "Формирование заявки...",
-      "success-btn": "Заказ отправлен!"
+      "toast-success": "Заказ успешно отправлен менеджеру!",
+      "toast-error": "Ошибка отправки! Проверьте настройки бота и токены.",
+      "sending": "Отправка...",
+      "success-btn": "Отправлено!"
     },
     uz: {
       "nav-catalog": "Katalog",
@@ -50,7 +56,7 @@ const Translations = {
       "cart-units": "dona",
       "hero-eyebrow": "Professional komponentlar",
       "hero-title": "Original qismlar va analoglar",
-      "hero-sub": "Toshkentdagi omborda 250 dan ortiq turdagi butlovchi qismlar mavjud. O'zbekiston bo'ylab ekspress yetkazib berish.",
+      "hero-sub": "Toshkentdagi omborda 250 dan ortiq turdagi butlovchi qismlar mavjud.",
       "btn-go-catalog": "Katalogni ko'rish",
       "btn-your-order": "Sizning buyurtmangiz",
       "catalog-title": "Ehtiyot qismlar katalogi",
@@ -60,7 +66,7 @@ const Translations = {
       "cat-brake": "Tormoz tizimi",
       "cat-suspension": "Podveska",
       "cat-electric": "Elektrika",
-      "no-results": "Sizning so'rovingiz bo'yicha hech narsa topilmadi. Filtrlarni o'zgartirib ko'ring.",
+      "no-results": "Sizning so'rovingiz bo'yicha hech narsa topilmadi.",
       "order-title": "Buyurtmani rasmiylashtirish",
       "receipt-spec": "Dastlabki chek",
       "receipt-total": "To'lov uchun jami:",
@@ -68,16 +74,17 @@ const Translations = {
       "form-phone": "Telefon raqami",
       "btn-submit": "Buyurtmani tasdiqlash",
       "form-note": "Yetkazib berish tafsilotlarini aniqlashtirish uchun menejerimiz siz bilan bog'lanadi",
-      "footer-text": "© 2026 AutoParts.uz. Professionallar uchun ishlab chiqilgan. Barcha huquqlar himoyalangan.",
-      "search-placeholder": "Nomi, brendi yoki artikuli bo'yicha qidirish...",
+      "footer-text": "© 2026 AutoParts.uz. Barcha huquqlar himoyalangan.",
+      "search-placeholder": "Nomi binoan qidirish...",
       "btn-buy": "Sotib olish",
       "btn-in-cart": "Savatchada",
-      "cart-empty": "Savatchangiz bo'sh. Kataloqdan mahsulot tanlang.",
+      "cart-empty": "Savatchangiz bo'sh.",
       "toast-add": "Ehtiyot qism chekka qo'shildi",
-      "toast-remove": "Ma'lumot savatchadan o'chirildi",
-      "toast-success": "Buyurtma qabul qilindi! Menejer qo'ng'irog'ini kuting.",
-      "sending": "Ariza shakllantirilmoqda...",
-      "success-btn": "Buyurtma yuborildi!"
+      "toast-remove": "Savatchadan o'chirildi",
+      "toast-success": "Buyurtma muvaffaqiyatli yuborildi!",
+      "toast-error": "Yuborishda xatolik! Bot sozlamalarini tekshiring.",
+      "sending": "Yuborilmoqda...",
+      "success-btn": "Yuborildi!"
     }
   };
   
@@ -93,76 +100,20 @@ const Translations = {
   };
   
   const REAL_PARTS_RAW = [
-    { 
-      cat: "engine", brand: "GM Original", price: 65000, 
-      name_ru: "Фильтр масляный", name_uz: "Moy filtri",
-      spec_ru: "Оригинальный заводской фильтр очистки масла.", spec_uz: "Original zavod moy tozalash filtri."
-    },
-    { 
-      cat: "engine", brand: "Gates", price: 480000, 
-      name_ru: "Ремень ГРМ (Комплект с роликами)", name_uz: "GHRM tasmasi (Roliklar to'plami)",
-      spec_ru: "Усиленный ремень ГРМ, ресурс до 80 000 км.", spec_uz: "Kuchaytirilgan GHRM tasmasi, resursi 80 000 km gacha."
-    },
-    { 
-      cat: "engine", brand: "NGK", price: 35000, 
-      name_ru: "Свеча зажигания Nickel", name_uz: "O't oldirish shamchasi Nickel",
-      spec_ru: "Стабильная искра, улучшенный холодный запуск.", spec_uz: "Barqaror uchqun, yaxshilangan sovuq ishga tushirish."
-    },
-    { 
-      cat: "engine", brand: "Denso", price: 120000, 
-      name_ru: "Свеча зажигания Иридиевая", name_uz: "O't oldirish shamchasi Iridium",
-      spec_ru: "Сверхпрочный иридиевый наконечник.", spec_uz: "O'ta mustahkam iridium uchi."
-    },
-    { 
-      cat: "engine", brand: "Hepu", price: 320000, 
-      name_ru: "Помпа водяная (Насос охлаждения)", name_uz: "Suv pompasi (Suv nasosi)",
-      spec_ru: "Металлическая крыльчатка, защита от протечек.", spec_uz: "Metall parrak, oqishdan himoya."
-    },
-    { 
-      cat: "brake", brand: "Brembo", price: 380000, 
-      name_ru: "Колодки тормозные передние", name_uz: "Old tormoz kolodkalari",
-      spec_ru: "Керамическое напыление, отсутствие скрипа.", spec_uz: "Keramik qoplama, g'ichirlashlarsiz tormozlash."
-    },
-    { 
-      cat: "brake", brand: "TRW", price: 260000, 
-      name_ru: "Колодки тормозные задние", name_uz: "Orqa tormoz kolodkalari",
-      spec_ru: "Оптимальное трение, бережное отношение к дискам.", spec_uz: "Optimal ishqalanish, disklarga zarar yetkazmaydi."
-    },
-    { 
-      cat: "brake", brand: "Zimmermann", price: 920000, 
-      name_ru: "Диск тормозной передний (Пара)", name_uz: "Old tormoz diski (Jufr)",
-      spec_ru: "Перфорированные диски с повышенным охлаждением.", spec_uz: "Yuqori darajada sovutiladigan perforatsiyalangan disklar."
-    },
-    { 
-      cat: "suspension", brand: "Kayaba", price: 590000, 
-      name_ru: "Амортизатор передний газомасляный", name_uz: "Old gaz-moyli amortizator",
-      spec_ru: "Идеальный баланс комфорта и управляемости.", spec_uz: "Komfort va boshqaruvning ideal balansi."
-    },
-    { 
-      cat: "suspension", brand: "Sachs", price: 420000, 
-      name_ru: "Амортизатор задний", name_uz: "Orqa amortizator",
-      spec_ru: "Повышенная стойкость к высоким нагрузкам.", spec_uz: "Yuqori yuklamalarga chidamlilik."
-    },
-    { 
-      cat: "suspension", brand: "CTR", price: 95000, 
-      name_ru: "Стойка стабилизатора (Линк)", name_uz: "Stabilizator stoykasi (Link)",
-      spec_ru: "Усиленный шарнир, защита от дорожной грязи.", spec_uz: "Kuchaytirilgan sharnir, yo'l loyidan himoya."
-    },
-    { 
-      cat: "electric", brand: "Delco Remy", price: 1450000, 
-      name_ru: "Генератор в сборе (100A)", name_uz: "Generator jamlanmasi (100A)",
-      spec_ru: "Стабильная зарядка аккумулятора.", spec_uz: "Akkumulyatorning barqaror quvvatlanishi."
-    },
-    { 
-      cat: "electric", brand: "Valeo", price: 980000, 
-      name_ru: "Стартер двигателя (1.2 kW)", name_uz: "Dvigatel starteri (1.2 kW)",
-      spec_ru: "Быстрый запуск двигателя в любые морозы.", spec_uz: "Har qanday sovuqda dvigatelni tez ishga tushirish."
-    },
-    { 
-      cat: "electric", brand: "Delkor", price: 820000, 
-      name_ru: "Аккумуляторная батарея 60Ah", name_uz: "Akkumulyator batareyasi 60Ah",
-      spec_ru: "Кальциевый необслуживаемый аккумулятор.", spec_uz: "Kalsiyli xizmat ko'rsatilmaydigan akkumulyator."
-    }
+    { cat: "engine", brand: "GM Original", price: 65000, name_ru: "Фильтр масляный", name_uz: "Moy filtri", spec_ru: "Оригинальный заводской фильтр масла.", spec_uz: "Original zavod moy filtri." },
+    { cat: "engine", brand: "Gates", price: 480000, name_ru: "Ремень ГРМ (Комплект с роликами)", name_uz: "GHRM tasmasi (Roliklar to'plami)", spec_ru: "Усиленный ремень, ресурс до 80 000 км.", spec_uz: "Kuchaytirilgan tasma, resursi 80 000 km gacha." },
+    { cat: "engine", brand: "NGK", price: 35000, name_ru: "Свеча зажигания Nickel", name_uz: "O't oldirish shamchasi Nickel", spec_ru: "Стабильная искра, легкий холодный запуск.", spec_uz: "Barqaror uchqun, oson sovuq start." },
+    { cat: "engine", brand: "Denso", price: 120000, name_ru: "Свеча зажигания Иридиевая", name_uz: "O't oldirish shamchasi Iridium", spec_ru: "Сверхпрочный иридиевый наконечник.", spec_uz: "O'ta mustahkam iridium uchi." },
+    { cat: "engine", brand: "Hepu", price: 320000, name_ru: "Помпа водяная (Насос охлаждения)", name_uz: "Suv pompasi (Suv nasosi)", spec_ru: "Металлическая крыльчатка, защита от протечек.", spec_uz: "Metall parrak, oqishdan himoya." },
+    { cat: "brake", brand: "Brembo", price: 380000, name_ru: "Колодки тормозные передние", name_uz: "Old tormoz kolodkalari", spec_ru: "Керамическое напыление, отсутствие скрипа.", spec_uz: "Keramik qoplama, g'ichirlashlarsiz tormozlash." },
+    { cat: "brake", brand: "TRW", price: 260000, name_ru: "Колодки тормозные задние", name_uz: "Orqa tormoz kolodkalari", spec_ru: "Оптимальное трение, бережет диски.", spec_uz: "Optimal ishqalanish, disklarga zarar yetkazmaydi." },
+    { cat: "brake", brand: "Zimmermann", price: 920000, name_ru: "Диск тормозной передний (Пара)", name_uz: "Old tormoz diski (Juft)", spec_ru: "Перфорированные диски с охлаждением.", spec_uz: "Yuqori darajada sovutiladigan perforatsiyalangan disklar." },
+    { cat: "suspension", brand: "Kayaba", price: 590000, name_ru: "Амортизатор передний газомасляный", name_uz: "Old gaz-moyli amortizator", spec_ru: "Идеальный баланс комфорта и хода.", spec_uz: "Komfort va yurishning ideal balansi." },
+    { cat: "suspension", brand: "Sachs", price: 420000, name_ru: "Амортизатор задний", name_uz: "Orqa amortizator", spec_ru: "Повышенная стойкость к высоким нагрузкам.", spec_uz: "Yuqori yuklamalarga chidamlilik." },
+    { cat: "suspension", brand: "CTR", price: 95000, name_ru: "Стойка стабилизатора (Линк)", name_uz: "Stabilizator stoykasi (Link)", spec_ru: "Усиленный шарнир, защита от грязи.", spec_uz: "Kuchaytirilgan sharnir, loydan himoya." },
+    { cat: "electric", brand: "Delco Remy", price: 1450000, name_ru: "Генератор в сборе (100A)", name_uz: "Generator jamlanmasi (100A)", spec_ru: "Стабильная зарядка аккумулятора.", spec_uz: "Akkumulyatorning barqaror quvvatlanishi." },
+    { cat: "electric", brand: "Valeo", price: 980000, name_ru: "Стартер двигателя (1.2 kW)", name_uz: "Dvigatel starteri (1.2 kW)", spec_ru: "Быстрый запуск двигателя в любые морозы.", spec_uz: "Har qanday sovuqda dvigatelni tez ishga tushirish." },
+    { cat: "electric", brand: "Delkor", price: 820000, name_ru: "Аккумуляторная батарея 60Ah", name_uz: "Akkumulyator batareyasi 60Ah", spec_ru: "Кальциевый необслуживаемый аккумулятор.", spec_uz: "Kalsiyli xizmat ko'rsatilmaydigan akkumulyator." }
   ];
   
   const UZ_CARS = ["Cobalt", "Gentra", "Nexia 3", "Malibu 2", "Tracker 2", "Spark"];
@@ -182,8 +133,8 @@ const Translations = {
           price: finalPrice,
           name_ru: `${part.name_ru} на Chevrolet ${car}`,
           name_uz: `Chevrolet ${car} uchun ${part.name_uz}`,
-          spec_ru: `${part.spec_ru} Полное соответствие OEM-стандартам UzAuto.`,
-          spec_uz: `${part.spec_uz} UzAuto OEM standartlariga to'liq javob beradi.`
+          spec_ru: `${part.spec_ru} Соответствие OEM UzAuto.`,
+          spec_uz: `${part.spec_uz} UzAuto OEM standartlariga mos.`
         });
         skuId++;
       });
@@ -194,30 +145,24 @@ const Translations = {
   const formatSum = (num) => new Intl.NumberFormat('ru-RU').format(num);
   
   // ==========================================
-  // 3. СИСТЕМА ПЕРЕКЛЮЧЕНИЯ ЯЗЫКА (ENGINE)
+  // 3. СИСТЕМА ПЕРЕКЛЮЧЕНИЯ ЯЗЫКА
   // ==========================================
   function switchLanguage(lang) {
     AppState.currentLang = lang;
     
-    // 1. Меняем активный класс на кнопках языков
     document.querySelectorAll('#lang-switcher .lang-btn').forEach(btn => {
       btn.classList.toggle('active', btn.dataset.lang === lang);
     });
   
-    // 2. Переводим все элементы с атрибутом data-i18n
     document.querySelectorAll('[data-i18n]').forEach(el => {
       const key = el.dataset.i18n;
-      if (Translations[lang][key]) {
-        el.textContent = Translations[lang][key];
-      }
+      if (Translations[lang][key]) el.textContent = Translations[lang][key];
     });
   
-    // 3. Обновляем плейсхолдер поиска
     if (AppState.DOM.searchInput) {
       AppState.DOM.searchInput.placeholder = Translations[lang]["search-placeholder"];
     }
   
-    // 4. Перерисовываем товары и корзину на новом языке
     renderProducts();
     renderCart();
   }
@@ -311,7 +256,80 @@ const Translations = {
   }
   
   // ==========================================
-  // 5. ОБРАБОТКА СОБЫТИЙ И ИНИЦИАЛИЗАЦИЯ
+  // 5. ЖЕЛЕЗОБЕТОННАЯ ОТПРАВКА В TELEGRAM (БЕЗ РИСКА ЗАБЛОКИРОВАТЬ СИНТАКСИС)
+  // ==========================================
+  function sendOrderToManager(e) {
+    e.preventDefault();
+    const { DOM, currentLang, cart } = AppState;
+    const langText = Translations[currentLang];
+    
+    const clientName = document.getElementById('client-name').value.trim();
+    const clientPhone = document.getElementById('client-phone').value.trim();
+    const orderNum = DOM.orderNumber.textContent;
+  
+    DOM.submitBtn.classList.add('sending');
+    DOM.submitBtn.querySelector('span').textContent = langText["sending"];
+    DOM.submitBtn.disabled = true;
+  
+    // Формируем чистый текст без HTML тегов (чтобы Телеграм никогда не выдавал ошибку 400)
+    let message = `🛠 НОВЫЙ ЗАКАЗ — AUTOPARTS.UZ\n`;
+    message += `Номер чека: ${orderNum}\n`;
+    message += `Язык клиента: ${currentLang.toUpperCase()}\n`;
+    message += `=====================================\n`;
+    message += `👤 Клиент: ${clientName}\n`;
+    message += `📞 Телефон: ${clientPhone}\n`;
+    message += `=====================================\n`;
+    message += `📦 Состав заказа:\n\n`;
+  
+    Object.values(cart).forEach((item, index) => {
+      const itemName = currentLang === 'ru' ? item.name_ru : item.name_uz;
+      const itemTotal = item.price * item.quantity;
+      message += `${index + 1}. ${itemName}\n`;
+      message += `   Бренд: ${item.brand} | Артикул: ${item.sku}\n`;
+      message += `   Кол-во: ${item.quantity} шт. х ${formatSum(item.price)} сум\n`;
+      message += `   Сумма: ${formatSum(itemTotal)} сум\n\n`;
+    });
+  
+    message += `=====================================\n`;
+    message += `💰 ОБЩАЯ СУММА: ${DOM.cartTotalPrice.textContent}`;
+  
+    const url = `https://api.telegram.org/bot${TG_CONFIG.BOT_TOKEN}/sendMessage`;
+    
+    fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        chat_id: TG_CONFIG.CHAT_ID,
+        text: message
+      })
+    })
+    .then(response => {
+      if (!response.ok) throw new Error('Ошибка конфигурации токенов');
+      return response.json();
+    })
+    .then(data => {
+      DOM.submitBtn.classList.remove('sending');
+      DOM.submitBtn.querySelector('span').textContent = langText["success-btn"];
+      fireToast(langText["toast-success"]);
+      
+      // Сброс
+      AppState.cart = {};
+      renderCart();
+      renderProducts();
+      DOM.orderForm.reset();
+      DOM.orderNumber.textContent = `#AP-UZ-${Math.floor(20000 + Math.random() * 79999)}`;
+    })
+    .catch(error => {
+      console.error('Telegram Error:', error);
+      DOM.submitBtn.classList.remove('sending');
+      DOM.submitBtn.disabled = false;
+      DOM.submitBtn.querySelector('span').textContent = langText["btn-submit"];
+      fireToast(langText["toast-error"]);
+    });
+  }
+  
+  // ==========================================
+  // 6. ИНИЦИАЛИЗАЦИЯ И СЛУШАТЕЛИ
   // ==========================================
   function bindStoreEvents() {
     const { DOM } = AppState;
@@ -334,7 +352,6 @@ const Translations = {
       });
     });
   
-    // Переключение языков на лету
     document.getElementById('lang-switcher').addEventListener('click', (e) => {
       const btn = e.target.closest('.lang-btn');
       if (!btn) return;
@@ -383,28 +400,6 @@ const Translations = {
     renderCart();
   }
   
-  function sendOrderToManager(e) {
-    e.preventDefault();
-    const { DOM, currentLang } = AppState;
-    const langText = Translations[currentLang];
-    
-    DOM.submitBtn.classList.add('sending');
-    DOM.submitBtn.querySelector('span').textContent = langText["sending"];
-    DOM.submitBtn.disabled = true;
-    
-    setTimeout(() => {
-      DOM.submitBtn.classList.remove('sending');
-      DOM.submitBtn.querySelector('span').textContent = langText["success-btn"];
-      fireToast(langText["toast-success"]);
-      
-      AppState.cart = {};
-      renderCart();
-      renderProducts();
-      DOM.orderForm.reset();
-      DOM.orderNumber.textContent = `#AP-UZ-${Math.floor(20000 + Math.random() * 79999)}`;
-    }, 1800);
-  }
-  
   function fireToast(msg) {
     const toast = AppState.DOM.toast;
     toast.textContent = msg;
@@ -431,5 +426,5 @@ const Translations = {
     };
     AppState.DOM.orderNumber.textContent = `#AP-UZ-${Math.floor(20000 + Math.random() * 79999)}`;
     bindStoreEvents();
-    switchLanguage('ru'); // По умолчанию ставим русский
+    switchLanguage('ru');
   });
