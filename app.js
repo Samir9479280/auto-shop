@@ -1,13 +1,13 @@
 /**
- * AutoParts.uz — Полная рабочая сборка (Каталог, Мультиязычность и Стабильный Telegram)
+ * AutoParts.uz — Версия с умной диагностикой Telegram-ошибок
  */
 
 // ==========================================
-// ⚠️ ОБЯЗАТЕЛЬНО ВСТАВЬ СВОИ ДАННЫЕ СЮДА!
+// ⚠️ ВСТАВЬ СВОИ ДАННЫЕ СЮДА!
 // ==========================================
 const TG_CONFIG = {
     BOT_TOKEN: "8757607697:AAEazhbC-8JcC2J6VdP-YGPIm-rsBAzXAnU",     // Удали этот текст и верни свой токен бота
-    CHAT_ID: "-1004436689296"        // Удали этот текст и верни свой ID группы/чата
+    CHAT_ID: "-1004436689296"    // Твой ID чата (для групп обязательно с минусом, например: -100xxxxxx)
   };
   
   // ==========================================
@@ -46,7 +46,7 @@ const TG_CONFIG = {
       "toast-add": "Запчасть добавлена в чек",
       "toast-remove": "Деталь удалена из корзины",
       "toast-success": "Заказ успешно отправлен менеджеру!",
-      "toast-error": "Ошибка отправки! Проверьте настройки бота и токены.",
+      "toast-error": "Ошибка отправки! См. системное окно.",
       "sending": "Отправка...",
       "success-btn": "Отправлено!"
     },
@@ -82,7 +82,7 @@ const TG_CONFIG = {
       "toast-add": "Ehtiyot qism chekka qo'shildi",
       "toast-remove": "Savatchadan o'chirildi",
       "toast-success": "Buyurtma muvaffaqiyatli yuborildi!",
-      "toast-error": "Yuborishda xatolik! Bot sozlamalarini tekshiring.",
+      "toast-error": "Yuborishda xatolik!",
       "sending": "Yuborilmoqda...",
       "success-btn": "Yuborildi!"
     }
@@ -144,9 +144,6 @@ const TG_CONFIG = {
   
   const formatSum = (num) => new Intl.NumberFormat('ru-RU').format(num);
   
-  // ==========================================
-  // 3. СИСТЕМА ПЕРЕКЛЮЧЕНИЯ ЯЗЫКА
-  // ==========================================
   function switchLanguage(lang) {
     AppState.currentLang = lang;
     
@@ -167,9 +164,6 @@ const TG_CONFIG = {
     renderCart();
   }
   
-  // ==========================================
-  // 4. ОТРИСОВКА ИНТЕРФЕЙСА
-  // ==========================================
   function renderProducts() {
     const { products, filters, cart, currentLang, DOM } = AppState;
     const langText = Translations[currentLang];
@@ -256,7 +250,7 @@ const TG_CONFIG = {
   }
   
   // ==========================================
-  // 5. ЖЕЛЕЗОБЕТОННАЯ ОТПРАВКА В TELEGRAM (БЕЗ РИСКА ЗАБЛОКИРОВАТЬ СИНТАКСИС)
+  // 5. ФУНКЦИЯ ОТПРАВКИ С ДИАГНОСТИКОЙ ОШИБОК
   // ==========================================
   function sendOrderToManager(e) {
     e.preventDefault();
@@ -267,11 +261,16 @@ const TG_CONFIG = {
     const clientPhone = document.getElementById('client-phone').value.trim();
     const orderNum = DOM.orderNumber.textContent;
   
+    // Проверка заглушек
+    if (TG_CONFIG.BOT_TOKEN.includes("ВАШ_ТОКЕН") || TG_CONFIG.CHAT_ID.includes("ВАШ_ID")) {
+      alert("⚠️ Стоп! Вы забыли указать свои реальные данные Telegram в самом верху файла app.js в переменной TG_CONFIG.");
+      return;
+    }
+  
     DOM.submitBtn.classList.add('sending');
     DOM.submitBtn.querySelector('span').textContent = langText["sending"];
     DOM.submitBtn.disabled = true;
   
-    // Формируем чистый текст без HTML тегов (чтобы Телеграм никогда не выдавал ошибку 400)
     let message = `🛠 НОВЫЙ ЗАКАЗ — AUTOPARTS.UZ\n`;
     message += `Номер чека: ${orderNum}\n`;
     message += `Язык клиента: ${currentLang.toUpperCase()}\n`;
@@ -303,16 +302,20 @@ const TG_CONFIG = {
         text: message
       })
     })
-    .then(response => {
-      if (!response.ok) throw new Error('Ошибка конфигурации токенов');
+    .then(async response => {
+      // ЕСЛИ ТЕЛЕГРАМ СКАЗАЛ "НЕТ" — вытягиваем причину ошибки
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.description || `Код ответа сервера: ${response.status}`);
+      }
       return response.json();
     })
     .then(data => {
+      // Если всё ок
       DOM.submitBtn.classList.remove('sending');
       DOM.submitBtn.querySelector('span').textContent = langText["success-btn"];
       fireToast(langText["toast-success"]);
       
-      // Сброс
       AppState.cart = {};
       renderCart();
       renderProducts();
@@ -320,16 +323,18 @@ const TG_CONFIG = {
       DOM.orderNumber.textContent = `#AP-UZ-${Math.floor(20000 + Math.random() * 79999)}`;
     })
     .catch(error => {
-      console.error('Telegram Error:', error);
+      // ВСПЛЫВАЮЩЕЕ ОКНО С ДИАГНОЗОМ ОШИБКИ
       DOM.submitBtn.classList.remove('sending');
       DOM.submitBtn.disabled = false;
       DOM.submitBtn.querySelector('span').textContent = langText["btn-submit"];
       fireToast(langText["toast-error"]);
+      
+      alert(`❌ ОШИБКА TELEGRAM API!\n\nСервер сообщил: "${error.message}"\n\nПожалуйста, убедитесь, что:\n1. Токен вашего бота правильный.\n2. ID чата/группы указан точно (для групп нужен знак "минус" в начале).\n3. Ваш бот добавлен в эту группу как Администратор.`);
     });
   }
   
   // ==========================================
-  // 6. ИНИЦИАЛИЗАЦИЯ И СЛУШАТЕЛИ
+  // 6. ОСТАЛЬНЫЕ ОБРАБОТЧИКИ СОБЫТИЙ
   // ==========================================
   function bindStoreEvents() {
     const { DOM } = AppState;
