@@ -1,57 +1,188 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AutoParts.uz</title>
-    <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AutoParts.uz — Оригинальные автозапчасти</title>
+<meta name="description" content="Оригинальные автозапчасти с доставкой по Узбекистану. Свечи зажигания, тормозная система, фильтры, масла, аккумуляторы.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <header>
-        <div class="container">
-            <h1>AutoParts.uz</h1>
-            <div class="cart-status">🛒 Корзина: <span id="cart-count">0</span> шт.</div>
-        </div>
-    </header>
 
-    <main class="container">
-        <h2>Каталог запчастей</h2>
-        <div class="products-grid">
-            <div class="product-card">
-                <h3>Свечи зажигания NGK</h3>
-                <p class="price">120 000 сум</p>
-                <button class="btn-buy" onclick="addToCart(1, 'Свечи зажигания NGK', 120000)">В корзину</button>
-            </div>
-            <div class="product-card">
-                <h3>Колодки Brembo</h3>
-                <p class="price">450 000 сум</p>
-                <button class="btn-buy" onclick="addToCart(2, 'Колодки Brembo', 450000)">В корзину</button>
-            </div>
-            <div class="product-card">
-                <h3>Фильтр Shell</h3>
-                <p class="price">85 000 сум</p>
-                <button class="btn-buy" onclick="addToCart(3, 'Фильтр Shell', 85000)">В корзину</button>
-            </div>
-        </div>
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="#top" class="brand">
+      <svg class="brand-icon" viewBox="0 0 32 32" aria-hidden="true">
+        <circle cx="16" cy="16" r="10" fill="none" stroke="currentColor" stroke-width="2"/>
+        <circle cx="16" cy="16" r="3.2" fill="currentColor"/>
+        <path d="M16 2 L16 6 M16 26 L16 30 M2 16 L6 16 M26 16 L30 16 M6.3 6.3 L9 9 M23 23 L25.7 25.7 M25.7 6.3 L23 9 M9 23 L6.3 25.7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+      <span class="brand-text">AUTOPARTS<span class="brand-accent">.UZ</span></span>
+    </a>
 
-        <section class="order-section">
-            <h2>Оформление заказа</h2>
-            <div class="order-summary">x
-                <strong>Ваш заказ:</strong>
-                <ul id="cart-items">
-                    <li>Корзина пуста</li>
-                </ul>
-                <p>Итого: <span id="cart-total">0</span> сум</p>
+    <nav class="main-nav" aria-label="Основная навигация">
+      <a href="#catalog">Каталог</a>
+      <a href="#order">Заказ</a>
+      <a href="#footer">Контакты</a>
+    </nav>
+
+    <button class="cart-pill" id="cart-pill" type="button" aria-label="Перейти к заказу">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 4h2l2.4 12.4a2 2 0 0 0 2 1.6h7.2a2 2 0 0 0 2-1.6L20 8H6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><circle cx="9" cy="21" r="1.4" fill="currentColor"/><circle cx="17" cy="21" r="1.4" fill="currentColor"/></svg>
+      <span id="cart-count">0</span>
+    </button>
+  </div>
+</header>
+
+<main id="top">
+
+  <section class="hero">
+    <div class="hero-grid" aria-hidden="true"></div>
+    <div class="container hero-inner">
+      <div class="hero-content">
+        <p class="eyebrow">Каталог запчастей · Узбекистан</p>
+        <h1>Оригинальные детали.<br>Без подделок и переплат.</h1>
+        <p class="hero-sub">Свечи, тормозная система, фильтры, масла и аккумуляторы проверенных брендов — NGK, Brembo, Bosch, Shell, Mann-Filter, Varta. Заказ оформляется за минуту, мы перезвоним для подтверждения.</p>
+        <div class="hero-actions">
+          <a href="#catalog" class="btn btn-primary">Смотреть каталог</a>
+          <a href="#order" class="btn btn-ghost">Перейти к заказу →</a>
+        </div>
+        <ul class="trust-row">
+          <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12 L10 19 L21 5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>Доставка по Узбекистану</li>
+          <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12 L10 19 L21 5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>Только оригинал</li>
+          <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12 L10 19 L21 5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>Оплата при получении</li>
+        </ul>
+      </div>
+
+      <div class="hero-visual" role="img" aria-label="Технический чертёж тормозного диска">
+        <svg viewBox="0 0 360 360" class="blueprint">
+          <circle cx="180" cy="180" r="130" class="bp-dim"/>
+          <circle cx="180" cy="180" r="98" class="bp-main"/>
+          <circle cx="180" cy="180" r="40" class="bp-main"/>
+          <circle cx="180" cy="180" r="40" fill="none" class="bp-hub"/>
+          <g class="bp-bolts">
+            <circle cx="180" cy="92" r="6"/>
+            <circle cx="248" cy="139" r="6"/>
+            <circle cx="248" cy="221" r="6"/>
+            <circle cx="180" cy="268" r="6"/>
+            <circle cx="112" cy="221" r="6"/>
+            <circle cx="112" cy="139" r="6"/>
+          </g>
+          <g class="bp-vents">
+            <line x1="180" y1="82" x2="180" y2="276"/>
+            <line x1="82" y1="180" x2="278" y2="180"/>
+            <line x1="115" y1="115" x2="245" y2="245"/>
+            <line x1="245" y1="115" x2="115" y2="245"/>
+          </g>
+          <line x1="180" y1="50" x2="180" y2="180" class="bp-dim-line"/>
+          <text x="186" y="65" class="bp-label">Ø 280 мм</text>
+          <text x="186" y="180" class="bp-label-sm">КОМПЛЕКТ 2 ШТ</text>
+        </svg>
+      </div>
+    </div>
+  </section>
+
+  <section class="catalog-section" id="catalog">
+    <div class="container">
+      <div class="section-head">
+        <p class="eyebrow">Каталог</p>
+        <h2>Подберите деталь</h2>
+        <p class="section-sub">Все позиции в наличии на складе в Ташкенте, отправка в день заказа.</p>
+      </div>
+
+      <div class="catalog-controls">
+        <div class="search-box">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="1.8"/><line x1="16.2" y1="16.2" x2="21" y2="21" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+          <input type="text" id="search-input" placeholder="Найти деталь или бренд…" aria-label="Поиск по каталогу">
+        </div>
+        <div class="category-tabs" id="category-tabs" role="tablist" aria-label="Категории"></div>
+      </div>
+
+      <div class="products-grid" id="products-grid"></div>
+      <p class="no-results" id="no-results" hidden>По запросу ничего не найдено. Попробуйте другое слово или категорию.</p>
+    </div>
+  </section>
+
+  <section class="order-section" id="order">
+    <div class="container">
+      <div class="section-head">
+        <p class="eyebrow">Оформление</p>
+        <h2>Ваш заказ</h2>
+        <p class="section-sub">Заполните контакты — менеджер свяжется для подтверждения и расчёта доставки.</p>
+      </div>
+
+      <div class="receipt">
+        <div class="receipt-perf" aria-hidden="true"></div>
+        <div class="receipt-body">
+          <div class="receipt-header">
+            <span>НАРЯД-ЗАКАЗ <span id="order-number"></span></span>
+            <span id="order-date"></span>
+          </div>
+
+          <div class="receipt-items" id="receipt-items">
+            <p class="receipt-empty" id="receipt-empty">Корзина пуста — выберите детали в <a href="#catalog">каталоге выше</a>.</p>
+          </div>
+
+          <div class="receipt-divider" aria-hidden="true"></div>
+
+          <div class="receipt-total-row">
+            <span>ИТОГО</span>
+            <span id="cart-total">0 сум</span>
+          </div>
+
+          <form id="order-form" novalidate>
+            <div class="field">
+              <label for="username">Имя</label>
+              <input type="text" id="username" name="username" placeholder="Как к вам обращаться" required>
             </div>
-            <form id="order-form">
-                <input type="text" id="username" placeholder="Имя" required>
-                <input type="tel" id="phone" placeholder="Телефон" required>
-                <button type="submit">Отправить заказ</button>
-            </form>
-            <ul id="cart-items"></ul>
-            <p>Итого: <span id="cart-total">0</span> сум</p>
-        </section>
-    </main>
-    <script src="app.js"></script>
+            <div class="field">
+              <label for="phone">Телефон</label>
+              <input type="tel" id="phone" name="phone" placeholder="+998 90 123 45 67" required pattern="^[+0-9 ()-]{7,20}$">
+            </div>
+            <div class="field">
+              <label for="email">Email <span class="optional">(необязательно)</span></label>
+              <input type="email" id="email" name="email" placeholder="you@example.com">
+            </div>
+
+            <button type="submit" class="btn-submit" id="submit-btn" disabled>
+              <span class="btn-led" aria-hidden="true"></span>
+              <span class="btn-label">Отправить заказ</span>
+            </button>
+            <p class="form-note">Заказы обрабатываются вручную, ответим в течение 30 минут в рабочее время.</p>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="site-footer" id="footer">
+  <div class="container footer-inner">
+    <div class="footer-brand">
+      <span class="brand-text">AUTOPARTS<span class="brand-accent">.UZ</span></span>
+      <p>Автозапчасти проверенных брендов с доставкой по Узбекистану.</p>
+    </div>
+    <div class="footer-col">
+      <h3>Контакты</h3>
+      <p>+998 90 123 45 67</p>
+      <p>Ташкент, Чиланзарский р-н</p>
+    </div>
+    <div class="footer-col">
+      <h3>Режим работы</h3>
+      <p>Пн–Сб: 9:00–19:00</p>
+      <p>Вс: выходной</p>
+    </div>
+  </div>
+  <div class="footer-bottom container">
+    <span>© 2026 AutoParts.uz</span>
+  </div>
+</footer>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="app.js"></script>
 </body>
 </html>
