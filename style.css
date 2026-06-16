@@ -817,4 +817,21 @@
     .receipt-body { padding: 24px 18px 26px; }
     .footer-inner { grid-template-columns: 1fr; }
   }
+  .lang-switcher {
+    display: flex;
+    gap: 8px;
+  }
   
+  .lang-btn {
+    background: #242832;
+    border: 1px solid #3a414d;
+    color: #ecebe4;
+    padding: 8px 14px;
+    border-radius: 999px;
+    cursor: pointer;
+  }
+  
+  .lang-btn.active {
+    background: #ff6a2c;
+    color: #14161b;
+  }

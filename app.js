@@ -14,7 +14,33 @@ const CHAT_ID ='-1004436689296';
 /* ============================================
    КАТАЛОГ — единственный источник данных.
    Чтобы добавить деталь, просто добавь объект в массив.
+ 
    ============================================ */
+const LANG = {
+    ru: {
+      all: 'Все',
+      addToCart: 'В корзину',
+      added: 'Добавлено',
+      emptyCart: 'Корзина пуста — выберите детали в каталоге выше.',
+      sendOrder: 'Отправить заказ',
+      sending: 'Отправка…',
+      orderSent: 'Заказ отправлен! Мы скоро свяжемся с вами.',
+      addItem: 'Добавьте хотя бы одну деталь в корзину'
+    },
+  
+    uz: {
+      all: 'Barchasi',
+      addToCart: 'Savatga',
+      added: "Qo'shildi",
+      emptyCart: "Savat bo'sh — yuqoridagi katalogdan mahsulot tanlang.",
+      sendOrder: 'Buyurtma yuborish',
+      sending: 'Yuborilmoqda…',
+      orderSent: "Buyurtma yuborildi! Tez orada siz bilan bog'lanamiz.",
+      addItem: "Kamida bitta mahsulot qo'shing"
+    }
+};
+  
+  let currentLang = 'ru';
 const PRODUCTS = [
   { id: 1, sku: '0231', brand: 'NGK', name: 'Свечи зажигания, комплект 4 шт', spec: 'Для бензиновых двигателей, зазор 0.8 мм', price: 120000, category: 'Свечи зажигания' },
   { id: 2, sku: '0456', brand: 'Brembo', name: 'Колодки тормозные передние', spec: 'Комплект на 1 ось, керамический состав', price: 450000, category: 'Тормозная система' },
@@ -97,7 +123,7 @@ function renderProducts() {
         <span class="product-price">${formatSum(p.price)}</span>
         <button class="btn-add" type="button" data-id="${p.id}">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 4h2l2.4 12.4a2 2 0 0 0 2 1.6h7.2a2 2 0 0 0 2-1.6L20 8H6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          <span>В корзину</span>
+          <span>${LANG[currentLang].addToCart}</span>
         </button>
       </div>
     `;
@@ -276,3 +302,120 @@ renderCategoryTabs();
 renderProducts();
 updateCartUI();
 initReceiptHeader();
+function setLang(lang) {
+    currentLang = lang;
+  
+    document.querySelectorAll('.lang-btn').forEach(btn => {
+      btn.classList.remove('active');
+  
+      if (btn.textContent.toLowerCase() === lang) {
+        btn.classList.add('active');
+      }
+    });
+  
+    if (lang === 'uz') {
+      document.querySelector('a[href="#catalog"]').textContent = 'Katalog';
+      document.querySelector('a[href="#order"]').textContent = 'Buyurtma';
+      document.querySelector('a[href="#footer"]').textContent = 'Kontaktlar';
+  
+      document.querySelector('.hero-content .eyebrow').textContent =
+        'Ehtiyot qismlar katalogi · Oʻzbekiston';
+  
+      document.querySelector('.hero-content h1').innerHTML =
+        'Original ehtiyot qismlar.<br>Soxtasiz va ortiqcha toʻlovsiz.';
+  
+      document.querySelector('.hero-sub').textContent =
+        'NGK, Brembo, Bosch, Shell, Mann-Filter va Varta brendlarining original mahsulotlari.';
+  
+      document.querySelectorAll('.trust-row li')[0].lastChild.textContent =
+        'Oʻzbekiston bo‘ylab yetkazib berish';
+  
+      document.querySelectorAll('.trust-row li')[1].lastChild.textContent =
+        'Faqat original mahsulotlar';
+  
+      document.querySelectorAll('.trust-row li')[2].lastChild.textContent =
+        'Qabul qilganda toʻlov';
+  
+      document.querySelector('#catalog .eyebrow').textContent = 'Katalog';
+      document.querySelector('#catalog h2').textContent =
+        'Kerakli ehtiyot qismini tanlang';
+  
+      document.querySelector('.section-sub').textContent =
+        'Barcha mahsulotlar Toshkent omborida mavjud.';
+  
+      document.getElementById('search-input').placeholder =
+        'Mahsulot yoki brendni qidiring…';
+  
+      document.querySelector('#order .eyebrow').textContent =
+        'Buyurtma rasmiylashtirish';
+  
+      document.querySelector('#order h2').textContent =
+        'Sizning buyurtmangiz';
+  
+      document.querySelector('label[for="username"]').textContent =
+        'Ism';
+  
+      document.querySelector('label[for="phone"]').textContent =
+        'Telefon';
+  
+      document.querySelector('label[for="email"]').innerHTML =
+        'Email <span class="optional">(ixtiyoriy)</span>';
+  
+      document.querySelector('.btn-label').textContent =
+        'Buyurtmani yuborish';
+    } else {
+      document.querySelector('a[href="#catalog"]').textContent = 'Каталог';
+      document.querySelector('a[href="#order"]').textContent = 'Заказ';
+      document.querySelector('a[href="#footer"]').textContent = 'Контакты';
+  
+      document.querySelector('.hero-content .eyebrow').textContent =
+        'Каталог запчастей · Узбекистан';
+  
+      document.querySelector('.hero-content h1').innerHTML =
+        'Оригинальные детали.<br>Без подделок и переплат.';
+  
+      document.querySelector('.hero-sub').textContent =
+        'Свечи, тормозная система, фильтры, масла и аккумуляторы проверенных брендов — NGK, Brembo, Bosch, Shell, Mann-Filter, Varta.';
+  
+      document.querySelectorAll('.trust-row li')[0].lastChild.textContent =
+        'Доставка по Узбекистану';
+  
+      document.querySelectorAll('.trust-row li')[1].lastChild.textContent =
+        'Только оригинал';
+  
+      document.querySelectorAll('.trust-row li')[2].lastChild.textContent =
+        'Оплата при получении';
+  
+      document.querySelector('#catalog .eyebrow').textContent = 'Каталог';
+      document.querySelector('#catalog h2').textContent =
+        'Подберите деталь';
+  
+      document.querySelector('.section-sub').textContent =
+        'Все позиции в наличии на складе в Ташкенте, отправка в день заказа.';
+  
+      document.getElementById('search-input').placeholder =
+        'Найти деталь или бренд…';
+  
+      document.querySelector('#order .eyebrow').textContent =
+        'Оформление';
+  
+      document.querySelector('#order h2').textContent =
+        'Ваш заказ';
+  
+      document.querySelector('label[for="username"]').textContent =
+        'Имя';
+  
+      document.querySelector('label[for="phone"]').textContent =
+        'Телефон';
+  
+      document.querySelector('label[for="email"]').innerHTML =
+        'Email <span class="optional">(необязательно)</span>';
+  
+      document.querySelector('.btn-label').textContent =
+        'Отправить заказ';
+    }
+  
+    renderCategoryTabs();
+    renderProducts();
+    updateCartUI();
+  }
