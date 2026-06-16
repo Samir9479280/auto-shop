@@ -1,17 +1,17 @@
 /**
- * AutoParts.uz — Версия с адресом доставки и диагностикой Telegram
+ * AutoParts.uz — Сборка с интерактивной GPS-картой (Leaflet) и отправкой в Telegram
  */
 
 // ==========================================
 // ⚠️ ВСТАВЬ СВОИ ДАННЫЕ СЮДА!
 // ==========================================
 const TG_CONFIG = {
-    BOT_TOKEN: "ВАШ_ТОКЕН_БОТА",     // Твой рабочий токен бота
-    CHAT_ID: "ВАШ_ID_ГРУППЫ"        // Твой ID чата (с минусом для групп)
+    BOT_TOKEN: "8757607697:AAEazhbC-8JcC2J6VdP-YGPIm-rsBAzXAnU",     // Удали этот текст и верни свой токен бота
+    CHAT_ID: "-1004436689296"   
   };
   
   // ==========================================
-  // 1. СЛОВАРЬ ПЕРЕВОДА ИНТЕРФЕЙСА (Добавлен адрес)
+  // 1. СЛОВАРЬ ПЕРЕВОДА ИНТЕРФЕЙСА
   // ==========================================
   const Translations = {
     ru: {
@@ -36,7 +36,7 @@ const TG_CONFIG = {
       "receipt-total": "Итого к оплате:",
       "form-name": "Имя получателя",
       "form-phone": "Номер телефона",
-      "form-address": "Адрес доставки", // Новый перевод
+      "form-address": "Адрес и геолокация",
       "btn-submit": "Подтвердить заказ",
       "form-note": "Наш менеджер свяжется с вами для уточнения деталей доставки",
       "footer-text": "© 2026 AutoParts.uz. Разработано для профессионалов. Все права защищены.",
@@ -49,7 +49,8 @@ const TG_CONFIG = {
       "toast-success": "Заказ успешно отправлен менеджеру!",
       "toast-error": "Ошибка отправки! См. системное окно.",
       "sending": "Отправка...",
-      "success-btn": "Отправлено!"
+      "success-btn": "Отправлено!",
+      "btn-geo-text": "📍 Найти меня по GPS"
     },
     uz: {
       "nav-catalog": "Katalog",
@@ -61,7 +62,7 @@ const TG_CONFIG = {
       "btn-go-catalog": "Katalogni ko'rish",
       "btn-your-order": "Sizning buyurtmangiz",
       "catalog-title": "Ehtiyot qismlar katalogi",
-      "catalog-sub": "Kerakli qismni tezda topish uchun filtrlardan va qidiruvdan foyданalaning",
+      "catalog-sub": "Kerakli qismni tezda topish uchun filtrlardan va qidiruvdan foydalaning",
       "cat-all": "Barcha qismlar",
       "cat-engine": "Dvigatel",
       "cat-brake": "Tormoz tizimi",
@@ -73,7 +74,7 @@ const TG_CONFIG = {
       "receipt-total": "To'lov uchun jami:",
       "form-name": "Qabul qiluvchining ismi",
       "form-phone": "Telefon raqami",
-      "form-address": "Yetkazib berish manzili", // Новый перевод
+      "form-address": "Manzil va geolokatsiya",
       "btn-submit": "Buyurtmani tasdiqlash",
       "form-note": "Yetkazib berish tafsilotlarini aniqlashtirish uchun menejerimiz siz bilan bog'lanadi",
       "footer-text": "© 2026 AutoParts.uz. Barcha huquqlar himoyalangan.",
@@ -86,19 +87,23 @@ const TG_CONFIG = {
       "toast-success": "Buyurtma muvaffaqiyatli yuborildi!",
       "toast-error": "Yuborishda xatolik!",
       "sending": "Yuborilmoqda...",
-      "success-btn": "Yuborildi!"
+      "success-btn": "Yuborildi!",
+      "btn-geo-text": "📍 GPS orqali aniqlash"
     }
   };
   
   // ==========================================
-  // 2. ДВУХЪЯЗЫЧНАЯ БАЗА АВТОЗАПЧАСТЕЙ
+  // 2. СОСТОЯНИЕ И БАЗА ДАННЫХ
   // ==========================================
   const AppState = {
     products: [],
     cart: {},
     filters: { category: 'all', search: '' },
     currentLang: 'ru',
-    DOM: {}
+    DOM: {},
+    map: null,           // Объект карты Leaflet
+    marker: null,        // Маркер на карте
+    selectedCoords: { lat: 41.311081, lng: 69.279737 } // Дефолт: Ташкент Центр
   };
   
   const REAL_PARTS_RAW = [
@@ -111,7 +116,7 @@ const TG_CONFIG = {
     { cat: "brake", brand: "TRW", price: 260000, name_ru: "Колодки тормозные задние", name_uz: "Orqa tormoz kolodkalari", spec_ru: "Оптимальное трение, бережет диски.", spec_uz: "Optimal ishqalanish, disklarga zarar yetkazmaydi." },
     { cat: "brake", brand: "Zimmermann", price: 920000, name_ru: "Диск тормозной передний (Пара)", name_uz: "Old tormoz diski (Juft)", spec_ru: "Перфорированные диски с охлаждением.", spec_uz: "Yuqori darajada sovutiladigan perforatsiyalangan disklar." },
     { cat: "suspension", brand: "Kayaba", price: 590000, name_ru: "Амортизатор передний газомасляный", name_uz: "Old gaz-moyli amortizator", spec_ru: "Идеальный баланс комфорта и хода.", spec_uz: "Komfort va yurishning ideal balansi." },
-    { cat: "suspension", brand: "Sachs", price: 420000, name_ru: "Амортизатор задний", name_uz: "Orqa amortizator", spec_ru: "Повышенная стойкость к высоким нагрузкам.", spec_uz: "Yuqori yuklamalarga chidamlilik." },
+    { cat: "suspension", brand: "Sachs", price: 420000, name_ru: "Амортизатор задний", name_uz: "Orqa amortizator", spec_ru: "Повышенная стойкость к высоким нагрузкам.", spec_uz: "Yuqori yukламalarga chidamlilik." },
     { cat: "suspension", brand: "CTR", price: 95000, name_ru: "Стойка стабилизатора (Линк)", name_uz: "Stabilizator stoykasi (Link)", spec_ru: "Усиленный шарнир, защита от грязи.", spec_uz: "Kuchaytirilgan sharnir, loydan himoya." },
     { cat: "electric", brand: "Delco Remy", price: 1450000, name_ru: "Генератор в сборе (100A)", name_uz: "Generator jamlanmasi (100A)", spec_ru: "Стабильная зарядка аккумулятора.", spec_uz: "Akkumulyatorning barqaror quvvatlanishi." },
     { cat: "electric", brand: "Valeo", price: 980000, name_ru: "Стартер двигателя (1.2 kW)", name_uz: "Dvigatel starteri (1.2 kW)", spec_ru: "Быстрый запуск двигателя в любые морозы.", spec_uz: "Har qanday sovuqda dvigatelni tez ishga tushirish." },
@@ -146,6 +151,69 @@ const TG_CONFIG = {
   
   const formatSum = (num) => new Intl.NumberFormat('ru-RU').format(num);
   
+  // ==========================================
+  // 3. ИНИЦИАЛИЗАЦИЯ ИНТЕРАКТИВНОЙ КАРТЫ
+  // ==========================================
+  function initOrderMap() {
+    // Создаем карту, цепляем на <div id="map">
+    AppState.map = L.map('map').setView([AppState.selectedCoords.lat, AppState.selectedCoords.lng], 12);
+    
+    // Подгружаем бесплатные слои OpenStreetMap
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap contributors'
+    }).addTo(AppState.map);
+  
+    // Ставим маркер по умолчанию
+    AppState.marker = L.marker([AppState.selectedCoords.lat, AppState.selectedCoords.lng], {
+      draggable: true // Маркер можно перетаскивать мышкой
+    }).addTo(AppState.map);
+  
+    // Слушаем перетаскивание маркера вручную
+    AppState.marker.on('dragend', function (e) {
+      const position = AppState.marker.getLatLng();
+      AppState.selectedCoords = { lat: position.lat, lng: position.lng };
+    });
+  
+    // Слушаем просто клик по любому месту на карте
+    AppState.map.on('click', function (e) {
+      AppState.marker.setLatLng(e.latlng);
+      AppState.selectedCoords = { lat: e.latlng.lat, lng: e.latlng.lng };
+    });
+  }
+  
+  // Кнопка автоопределения геолокации по GPS смартфона/ПК
+  function getUserGeolocation() {
+    const geoBtn = document.getElementById('btn-geo');
+    
+    if (!navigator.geolocation) {
+      alert("Ваш браузер не поддерживает определение гео-позиции.");
+      return;
+    }
+  
+    geoBtn.textContent = AppState.currentLang === 'ru' ? "⚡ Ищем спутники..." : "⚡ Спутник изланмоқда...";
+  
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const lat = position.coords.latitude;
+        const lng = position.coords.longitude;
+        
+        AppState.selectedCoords = { lat, lng };
+        
+        // Переносим карту и маркер на точку пользователя
+        AppState.map.setView([lat, lng], 16);
+        AppState.marker.setLatLng([lat, lng]);
+        
+        geoBtn.textContent = Translations[AppState.currentLang]["btn-geo-text"];
+      },
+      (error) => {
+        console.error(error);
+        alert("Не удалось получить доступ к GPS. Пожалуйста, выберите точку на карте вручную.");
+        geoBtn.textContent = Translations[AppState.currentLang]["btn-geo-text"];
+      },
+      { enableHighAccuracy: true, timeout: 7000 }
+    );
+  }
+  
   function switchLanguage(lang) {
     AppState.currentLang = lang;
     
@@ -162,13 +230,15 @@ const TG_CONFIG = {
       AppState.DOM.searchInput.placeholder = Translations[lang]["search-placeholder"];
     }
   
-    // Динамическая смена плейсхолдера для адреса
-    const addressInput = document.getElementById('client-address');
-    if (addressInput) {
-      addressInput.placeholder = lang === 'ru' 
-        ? "Город, район, улица, дом, ориентир..." 
-        : "Shahar, tuman, ko'cha, uy, mo'ljal...";
+    const textAddressInput = document.getElementById('client-address-text');
+    if (textAddressInput) {
+      textAddressInput.placeholder = lang === 'ru' 
+        ? "Квартира, этаж или ориентир (опционально)" 
+        : "Xonadon, qavat yoki mo'ljal (ixtiyoriy)";
     }
+  
+    const geoBtn = document.getElementById('btn-geo');
+    if (geoBtn) geoBtn.textContent = Translations[lang]["btn-geo-text"];
   
     renderProducts();
     renderCart();
@@ -260,16 +330,16 @@ const TG_CONFIG = {
   }
   
   // ==========================================
-  // 5. ОТПРАВКА В TELEGRAM (С УЧЕТОМ АДРЕСА)
+  // 4. ОТПРАВКА ЗАКАЗА С ГЕОССЫЛКОЙ В TELEGRAM
   // ==========================================
   function sendOrderToManager(e) {
     e.preventDefault();
-    const { DOM, currentLang, cart } = AppState;
+    const { DOM, currentLang, cart, selectedCoords } = AppState;
     const langText = Translations[currentLang];
     
     const clientName = document.getElementById('client-name').value.trim();
     const clientPhone = document.getElementById('client-phone').value.trim();
-    const clientAddress = document.getElementById('client-address').value.trim(); // Считываем адрес
+    const clientNote = document.getElementById('client-address-text').value.trim();
     const orderNum = DOM.orderNumber.textContent;
   
     if (TG_CONFIG.BOT_TOKEN.includes("ВАШ_ТОКЕН") || TG_CONFIG.CHAT_ID.includes("ВАШ_ID")) {
@@ -281,14 +351,22 @@ const TG_CONFIG = {
     DOM.submitBtn.querySelector('span').textContent = langText["sending"];
     DOM.submitBtn.disabled = true;
   
-    // Формируем чистый текст (включая Адрес)
+    // Формируем отчет. Вместо текста адреса делаем железную ссылку для навигатора курьера
     let message = `🛠 НОВЫЙ ЗАКАЗ — AUTOPARTS.UZ\n`;
     message += `Номер чека: ${orderNum}\n`;
     message += `Язык клиента: ${currentLang.toUpperCase()}\n`;
     message += `=====================================\n`;
     message += `👤 Клиент: ${clientName}\n`;
     message += `📞 Телефон: ${clientPhone}\n`;
-    message += `📍 Адрес доставки: ${clientAddress}\n`; // Выводим в Telegram
+    
+    // Добавляем координаты в виде кликабельной ссылки
+    message += `📍 КАРТА (Открыть в Навигаторе):\n`;
+    message += `https://www.google.com/maps?q=${selectedCoords.lat},${selectedCoords.lng}\n`;
+    
+    if (clientNote) {
+      message += `🏠 Дополнение: ${clientNote}\n`;
+    }
+    
     message += `=====================================\n`;
     message += `📦 Состав заказа:\n\n`;
   
@@ -326,11 +404,17 @@ const TG_CONFIG = {
       DOM.submitBtn.querySelector('span').textContent = langText["success-btn"];
       fireToast(langText["toast-success"]);
       
+      // Сброс
       AppState.cart = {};
       renderCart();
       renderProducts();
       DOM.orderForm.reset();
       DOM.orderNumber.textContent = `#AP-UZ-${Math.floor(20000 + Math.random() * 79999)}`;
+      
+      // Возвращаем карту на центр
+      AppState.selectedCoords = { lat: 41.311081, lng: 69.279737 };
+      AppState.map.setView([41.311081, 69.279737], 12);
+      AppState.marker.setLatLng([41.311081, 69.279737]);
     })
     .catch(error => {
       DOM.submitBtn.classList.remove('sending');
@@ -342,7 +426,7 @@ const TG_CONFIG = {
   }
   
   // ==========================================
-  // 6. ИНИЦИАЛИЗАЦИЯ И СЛУШАТЕЛИ
+  // 5. НАСТРОЙКА СЛУШАТЕЛЕЙ
   // ==========================================
   function bindStoreEvents() {
     const { DOM } = AppState;
@@ -385,6 +469,9 @@ const TG_CONFIG = {
       if (action === 'minus') changeQty(id, -1);
       if (action === 'remove') updateCartState(id, true);
     });
+  
+    // Привязка клика по кнопке GPS
+    document.getElementById('btn-geo').addEventListener('click', getUserGeolocation);
   
     DOM.orderForm.addEventListener('submit', sendOrderToManager);
   }
@@ -438,6 +525,8 @@ const TG_CONFIG = {
       toast: document.getElementById('toast')
     };
     AppState.DOM.orderNumber.textContent = `#AP-UZ-${Math.floor(20000 + Math.random() * 79999)}`;
+    
+    initOrderMap(); // Запуск карты при загрузке
     bindStoreEvents();
     switchLanguage('ru');
   });

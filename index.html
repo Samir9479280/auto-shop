@@ -3,128 +3,165 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AutoParts.uz — Премиальные автозапчасти</title>
+  <title>AutoParts.uz — Магазин автозапчастей</title>
+  
+  <!-- КАРТА: Подключаем стили Leaflet Maps -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  
+  <!-- Твои стили оформления -->
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
+  <!-- ШАПКА И НАВИГАЦИЯ -->
   <header class="site-header">
-    <div class="container header-inner">
-      <a href="#" class="brand">
-        <svg class="brand-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
-        <div class="brand-text">AUTOPARTS<span class="brand-accent">.UZ</span></div>
-      </a>
+    <div class="header-container">
+      <div class="logo">
+        <span class="logo-accent">AutoParts</span>.uz
+      </div>
+      
       <nav class="main-nav">
         <a href="#catalog" data-i18n="nav-catalog">Каталог</a>
         <a href="#order" data-i18n="nav-order">Оформление</a>
       </nav>
-      <div class="lang-switcher" id="lang-switcher">
+      
+      <!-- Переключатель языков -->
+      <div id="lang-switcher" class="lang-switcher">
         <button class="lang-btn active" data-lang="ru">RU</button>
         <button class="lang-btn" data-lang="uz">UZ</button>
       </div>
-      <button class="cart-pill" id="cart-total-btn">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
-        <span id="cart-count">0</span> <span data-i18n="cart-units">шт.</span>
-      </button>
     </div>
   </header>
 
-  <section class="hero">
-    <div class="hero-grid"></div>
-    <div class="container hero-inner">
-      <div class="hero-content">
-        <div class="eyebrow" data-i18n="hero-eyebrow">Профессиональные компоненты</div>
-        <h1 data-i18n="hero-title">Оригинальные запчасти и аналоги</h1>
-        <p class="hero-sub" data-i18n="hero-sub">Более 250 наименований деталей в наличии на складе в Ташкенте. Экспресс-доставка по всему Узбекистану.</p>
-        <div class="hero-actions">
-          <a href="#catalog" class="btn btn-primary" data-i18n="btn-go-catalog">Перейти к каталогу</a>
-          <a href="#order" class="btn btn-ghost" data-i18n="btn-your-order">Ваш заказ</a>
-        </div>
-      </div>
+  <!-- ГЛАВНЫЙ БАННЕР (HERO) -->
+  <section class="hero-section">
+    <div class="hero-content">
+      <span class="hero-eyebrow" data-i18n="hero-eyebrow">Профессиональные компоненты</span>
+      <h1 class="hero-title" data-i18n="hero-title">Оригинальные запчасти и аналоги</h1>
+      <p class="hero-sub" data-i18n="hero-sub">Более 250 наименований деталей в наличии на складе в Ташкенте. Экспресс-доставка по всему Узбекистану.</p>
+      <a href="#catalog" class="btn-primary" data-i18n="btn-go-catalog">Перейти к каталогу</a>
     </div>
   </section>
 
-  <section class="catalog-section" id="catalog">
-    <div class="container">
-      <div class="section-head">
-        <h2 data-i18n="catalog-title">Каталог запчастей</h2>
-        <p class="section-sub" data-i18n="catalog-sub">Используйте фильтры и поиск для быстрого подбора нужной детали</p>
-      </div>
-
-      <div class="catalog-controls">
-        <div class="search-box">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-          <input type="text" id="search-input" placeholder="Поиск...">
-        </div>
-        <div class="category-tabs" id="category-filters">
-          <button class="tab-btn active" data-category="all" data-i18n="cat-all">Все детали</button>
-          <button class="tab-btn" data-category="engine" data-i18n="cat-engine">Двигатель</button>
-          <button class="tab-btn" data-category="brake" data-i18n="cat-brake">Тормозная система</button>
-          <button class="tab-btn" data-category="suspension" data-i18n="cat-suspension">Подвеска</button>
-          <button class="tab-btn" data-category="electric" data-i18n="cat-electric">Электрика</button>
-        </div>
-      </div>
-
-      <div class="products-grid" id="products-container"></div>
-      <div class="no-results" id="no-results" style="display: none;" data-i18n="no-results">По вашему запросу ничего не найдено.</div>
+  <!-- КАТАЛОГ С ФИЛЬТРАМИ И ПОИСКОМ -->
+  <main id="catalog" class="catalog-section">
+    <div class="section-header">
+      <h2 data-i18n="catalog-title">Каталог запчастей</h2>
+      <p data-i18n="catalog-sub">Используйте фильтры и поиск для быстрого подбора нужной детали</p>
     </div>
-  </section>
 
-  <section class="order-section" id="order">
-    <div class="container">
-      <div class="section-head">
-        <h2 data-i18n="order-title">Оформление заказа</h2>
+    <!-- Панель управления (Поиск и Категории) -->
+    <div class="controls-panel">
+      <div class="search-wrapper">
+        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+        <input type="text" id="search-input" placeholder="Поиск по названию, бренду или артикулу...">
       </div>
 
-      <div class="receipt">
-        <div class="receipt-perf"></div>
-        <div class="receipt-body">
-          <div class="receipt-header">
-            <span data-i18n="receipt-spec">Предварительный чек</span>
-            <span id="order-number"></span>
-          </div>
+      <div class="filter-tabs">
+        <button class="tab-btn active" data-category="all" data-i18n="cat-all">Все детали</button>
+        <button class="tab-btn" data-category="engine" data-i18n="cat-engine">Двигатель</button>
+        <button class="tab-btn" data-category="brake" data-i18n="cat-brake">Тормозная система</button>
+        <button class="tab-btn" data-category="suspension" data-i18n="cat-suspension">Подвеска</button>
+        <button class="tab-btn" data-category="electric" data-i18n="cat-electric">Электрика</button>
+      </div>
+    </div>
 
-          <div id="cart-items-container"></div>
+    <!-- Сетка товаров -->
+    <div id="products-container" class="products-grid">
+      <!-- Товары генерируются автоматически через app.js -->
+    </div>
 
-          <div class="receipt-divider"></div>
+    <!-- Заглушка, если ничего не найдено -->
+    <div id="no-results" class="no-results" style="display: none;">
+      <p data-i18n="no-results">По вашему запросу ничего не найдено.</p>
+    </div>
+  </main>
 
-          <div class="receipt-total-row">
+  <!-- ОФОРМЛЕНИЕ ЗАКАЗА И КАРТА -->
+  <section id="order" class="order-section">
+    <div class="order-container">
+      
+      <!-- ЛЕВАЯ ЧАСТЬ: Предварительный чек (Корзина) -->
+      <div class="receipt-card">
+        <div class="receipt-header">
+          <h3 data-i18n="receipt-spec">Предварительный чек</h3>
+          <span id="order-number" class="order-number">#AP-UZ-00000</span>
+        </div>
+        
+        <!-- Сюда падают выбранные запчасти -->
+        <div id="cart-items-container" class="receipt-body">
+          <!-- Генерируется через app.js -->
+        </div>
+        
+        <div class="receipt-footer">
+          <div class="total-row">
             <span data-i18n="receipt-total">Итого к оплате:</span>
-            <span id="cart-total-price">0 сум</span>
+            <span id="cart-total-price" class="total-price">0 sum</span>
           </div>
-
-          <form id="order-form">
-            <div class="field">
-              <label for="client-name" data-i18n="form-name">Имя получателя</label>
-              <input type="text" id="client-name" required placeholder="Ahmad">
-            </div>
-            <div class="field">
-              <label for="client-phone" data-i18n="form-phone">Номер телефона</label>
-              <input type="tel" id="client-phone" required placeholder="+998 90 123 45 67">
-            </div>
-            <div class="form-group">
-                <label data-i18n="form-address">Адрес доставки</label>
-                <textarea id="client-address" rows="2" placeholder="Город, район, улица, дом, ориентир..." required></textarea>
-              </div>
-            <button type="submit" class="btn-submit" id="submit-btn" disabled>
-              <div class="btn-led"></div>
-              <span data-i18n="btn-submit">Подтвердить заказ</span>
-            </button>
-          </form>
-          <p class="form-note" data-i18n="form-note">Наш менеджер свяжется с вами для уточнения деталей доставки</p>
         </div>
       </div>
+
+      <!-- ПРАВАЯ ЧАСТЬ: Анкета клиента и Геолокация -->
+      <div class="form-card">
+        <h3 data-i18n="order-title">Оформление заказа</h3>
+        
+        <form id="order-form">
+          <div class="form-group">
+            <label data-i18n="form-name">Имя получателя</label>
+            <input type="text" id="client-name" required placeholder="Иван Петров">
+          </div>
+          
+          <div class="form-group">
+            <label data-i18n="form-phone">Номер телефона</label>
+            <input type="tel" id="client-phone" placeholder="+998 (__) ___-__-__" required>
+          </div>
+          
+          <!-- БЛОК ГЕОЛОКАЦИИ И ИНТЕРАКТИВНОЙ КАРТЫ -->
+          <div class="form-group">
+            <label data-i18n="form-address">Адрес и геолокация</label>
+            
+            <!-- Кнопка мгновенного поиска по GPS смартфона -->
+            <button type="button" id="btn-geo" class="btn-geo">
+              📍 Найти меня по GPS
+            </button>
+            
+            <!-- Окно карты Leaflet -->
+            <div id="map"></div>
+            
+            <!-- Текстовое дополнение к адресу -->
+            <input type="text" id="client-address-text" placeholder="Квартира, этаж или ориентир (опционально)">
+          </div>
+
+          <button type="submit" id="submit-btn" class="btn-submit">
+            <span data-i18n="btn-submit">Подтвердить заказ</span>
+          </button>
+          
+          <p class="form-note" data-i18n="form-note">Наш менеджер свяжется с вами для уточнения деталей доставки</p>
+        </form>
+      </div>
+
     </div>
   </section>
 
+  <!-- ФУТЕР -->
   <footer class="site-footer">
-    <div class="container footer-bottom" data-i18n="footer-text">
-      &copy; 2026 AutoParts.uz. Разработано для профессионалов. Все права защищены.
-    </div>
+    <p data-i18n="footer-text">© 2026 AutoParts.uz. Разработано для профессионалов. Все права защищены.</p>
   </footer>
 
-  <div class="toast" id="toast"></div>
+  <!-- ПЛАВАЮЩАЯ КНОПКА КОРЗИНЫ -->
+  <button id="cart-total-btn" class="floating-cart">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+    <div id="cart-count" class="cart-badge">0</div>
+  </button>
 
-  <script src="app.js" defer></script>
+  <!-- ВСПОЛЫВАЮЩИЕ ПРЕДУПРЕЖДЕНИЯ (TOAST) -->
+  <div id="toast" class="toast-notification"></div>
+
+
+  <!-- Скрипты карт Leaflet (Должен идти строго перед вашим кодом!) -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  
+  <!-- Твоя логика приложения -->
+  <script src="app.js"></script>
 </body>
 </html>
